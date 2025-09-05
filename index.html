@@ -62,21 +62,6 @@
             box-shadow: 0 20px 25px -5px rgba(245, 158, 11, 0.2), 0 10px 10px -5px rgba(245, 158, 11, 0.1);
         }
 
-        .website {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.08) 100%);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 15px;
-            padding: 8px 20px;
-            color: white;
-            font-size: 0.9em;
-            font-weight: 500;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-            display: inline-block;
-            box-shadow: 0 10px 20px -5px rgba(245, 158, 11, 0.15);
-            opacity: 0.9;
-        }
-
         .quiz-header {
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%);
             backdrop-filter: blur(20px);
@@ -430,6 +415,23 @@
             font-size: 15px;
         }
 
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #2d3748;
+            font-size: 1.2em;
+        }
+
+        .error {
+            background: linear-gradient(135deg, rgba(234, 88, 12, 0.1) 0%, rgba(194, 65, 12, 0.05) 100%);
+            border: 1px solid rgba(234, 88, 12, 0.2);
+            border-left: 4px solid #ea580c;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #c2410c;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -511,7 +513,7 @@
         <div class="quiz-header">
             <h1>Quiz de Direito das Obrigações</h1>
             <p>Cumprimento e Não Cumprimento das Obrigações</p>
-            <p><strong>50 questões</strong> sobre os conceitos fundamentais</p>
+            <p><strong id="totalQuestions">50 questões</strong> sobre os conceitos fundamentais</p>
         </div>
 
         <div class="quiz-content">
@@ -519,7 +521,11 @@
                 <div class="progress-fill" id="progressBar"></div>
             </div>
 
-            <div id="questionsContainer"></div>
+            <div id="questionsContainer">
+                <div class="loading">
+                    A carregar questões...
+                </div>
+            </div>
 
             <div class="results" id="results">
                 <h2>Resultado Final</h2>
@@ -528,7 +534,7 @@
                 <button class="btn" onclick="restartQuiz()">Recomeçar Quiz</button>
             </div>
 
-            <div class="navigation">
+            <div class="navigation" id="navigation" style="display: none;">
                 <button class="btn btn-secondary" id="prevBtn">Anterior</button>
                 <span id="questionInfo">Questão 1 de 50</span>
                 <button class="btn" id="nextBtn">Próxima</button>
@@ -544,45 +550,40 @@
         let currentQuestion = 0;
         let userAnswers = [];
         let quizFinished = false;
+        let quizQuestions = [];
 
         function initQuiz() {
+            // Check if questions are loaded
+            if (typeof questions === 'undefined' || !Array.isArray(questions) || questions.length === 0) {
+                showError('Erro ao carregar as questões. Verifique se o arquivo questions.js está disponível.');
+                return;
+            }
+
+            quizQuestions = [...questions]; // Copy the questions array
+            userAnswers = new Array(quizQuestions.length); // Initialize answers array
+            
+            // Update the total questions display
+            document.getElementById('totalQuestions').textContent = `${quizQuestions.length} questões`;
+            
             generateQuestions();
             showQuestion(0);
             updateNavigation();
             updateProgress();
+            
+            // Show navigation
+            document.getElementById('navigation').style.display = 'flex';
+        }
+
+        function showError(message) {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = `<div class="error">${message}</div>`;
         }
 
         function generateQuestions() {
             const container = document.getElementById('questionsContainer');
             container.innerHTML = '';
 
-            // Mock questions for demonstration (replace with your questions.js)
-            const questions = [
-                {
-                    question: "Qual é o princípio fundamental do cumprimento das obrigações?",
-                    options: [
-                        "Princípio da autonomia da vontade",
-                        "Princípio da boa-fé",
-                        "Princípio da força obrigatória",
-                        "Princípio da relatividade"
-                    ],
-                    correct: 2,
-                    explanation: "O princípio da força obrigatória estabelece que o contrato faz lei entre as partes, devendo ser cumprido conforme pactuado."
-                },
-                {
-                    question: "O que caracteriza o inadimplemento absoluto?",
-                    options: [
-                        "Cumprimento tardio da obrigação",
-                        "Impossibilidade definitiva do cumprimento",
-                        "Cumprimento defeituoso",
-                        "Mora do devedor"
-                    ],
-                    correct: 1,
-                    explanation: "O inadimplemento absoluto ocorre quando há impossibilidade definitiva de cumprir a obrigação, tornando-a inútil para o credor."
-                }
-            ];
-
-            questions.forEach((q, index) => {
+            quizQuestions.forEach((q, index) => {
                 const questionDiv = document.createElement('div');
                 questionDiv.className = 'question-container';
                 questionDiv.id = `question-${index}`;
@@ -590,7 +591,7 @@
                 questionDiv.innerHTML = `
                     <div class="question-header">
                         <div class="question-number">Questão ${index + 1}</div>
-                        <div class="question-progress">${index + 1} de ${questions.length}</div>
+                        <div class="question-progress">${index + 1} de ${quizQuestions.length}</div>
                     </div>
                     <div class="question-text">${q.question}</div>
                     <div class="options">
@@ -612,20 +613,26 @@
 
         function showQuestion(questionIndex) {
             document.querySelectorAll('.question-container').forEach(q => q.classList.remove('active'));
-            document.getElementById(`question-${questionIndex}`).classList.add('active');
+            const currentQuestionDiv = document.getElementById(`question-${questionIndex}`);
+            if (currentQuestionDiv) {
+                currentQuestionDiv.classList.add('active');
+            }
             
             currentQuestion = questionIndex;
             updateNavigation();
             updateProgress();
 
-            document.getElementById('questionInfo').textContent = `Questão ${questionIndex + 1} de 2`;
+            document.getElementById('questionInfo').textContent = `Questão ${questionIndex + 1} de ${quizQuestions.length}`;
 
+            // Restore previous answer if exists
             if (userAnswers[questionIndex] !== undefined) {
                 const questionDiv = document.getElementById(`question-${questionIndex}`);
                 const options = questionDiv.querySelectorAll('.option');
-                options[userAnswers[questionIndex]].classList.add('selected');
+                if (options[userAnswers[questionIndex]]) {
+                    options[userAnswers[questionIndex]].classList.add('selected');
+                }
                 
-                // Show explanation only if answer is selected
+                // Show explanation if answer is selected
                 document.getElementById(`explanation-${questionIndex}`).classList.add('show');
                 
                 if (quizFinished) {
@@ -640,12 +647,17 @@
             const questionDiv = document.getElementById(`question-${questionIndex}`);
             const options = questionDiv.querySelectorAll('.option');
             
+            // Remove previous selection
             options.forEach(opt => opt.classList.remove('selected'));
-            options[optionIndex].classList.add('selected');
+            
+            // Add new selection
+            if (options[optionIndex]) {
+                options[optionIndex].classList.add('selected');
+            }
             
             userAnswers[questionIndex] = optionIndex;
             
-            // Only show explanation AFTER user selects an answer
+            // Show explanation after user selects an answer
             document.getElementById(`explanation-${questionIndex}`).classList.add('show');
             
             updateNavigation();
@@ -654,7 +666,7 @@
         function showAnswerResults(questionIndex) {
             const questionDiv = document.getElementById(`question-${questionIndex}`);
             const options = questionDiv.querySelectorAll('.option');
-            const correctAnswer = [2, 1][questionIndex]; // Mock correct answers
+            const correctAnswer = quizQuestions[questionIndex].correct;
             const userAnswer = userAnswers[questionIndex];
 
             options.forEach((option, index) => {
@@ -669,7 +681,7 @@
         }
 
         function nextQuestion() {
-            if (currentQuestion < 1) { // Mock: only 2 questions
+            if (currentQuestion < quizQuestions.length - 1) {
                 showQuestion(currentQuestion + 1);
             } else if (allQuestionsAnswered()) {
                 finishQuiz();
@@ -683,7 +695,8 @@
         }
 
         function allQuestionsAnswered() {
-            return userAnswers.length === 2 && !userAnswers.includes(undefined); // Mock: 2 questions
+            return userAnswers.length === quizQuestions.length && 
+                   userAnswers.every(answer => answer !== undefined);
         }
 
         function updateNavigation() {
@@ -692,7 +705,7 @@
 
             prevBtn.disabled = currentQuestion === 0;
             
-            if (currentQuestion === 1) { // Mock: last question
+            if (currentQuestion === quizQuestions.length - 1) {
                 if (allQuestionsAnswered()) {
                     nextBtn.textContent = 'Finalizar Quiz';
                     nextBtn.disabled = false;
@@ -708,7 +721,7 @@
 
         function updateProgress() {
             const answeredQuestions = userAnswers.filter(answer => answer !== undefined).length;
-            const progressPercent = (answeredQuestions / 2) * 100; // Mock: 2 questions
+            const progressPercent = (answeredQuestions / quizQuestions.length) * 100;
             document.getElementById('progressBar').style.width = progressPercent + '%';
         }
 
@@ -716,14 +729,13 @@
             quizFinished = true;
             
             let correctAnswers = 0;
-            const correctAnswersArray = [2, 1]; // Mock correct answers
-            correctAnswersArray.forEach((correctAnswer, index) => {
-                if (userAnswers[index] === correctAnswer) {
+            quizQuestions.forEach((question, index) => {
+                if (userAnswers[index] === question.correct) {
                     correctAnswers++;
                 }
             });
 
-            const percentage = Math.round((correctAnswers / 2) * 100);
+            const percentage = Math.round((correctAnswers / quizQuestions.length) * 100);
             
             const resultsDiv = document.getElementById('results');
             const scoreDisplay = document.getElementById('finalScore');
@@ -745,49 +757,83 @@
 
             scoreBreakdown.innerHTML = `
                 <h3>${scoreMessage}</h3>
-                <p><strong>Respostas Corretas:</strong> ${correctAnswers} de 2</p>
+                <p><strong>Respostas Corretas:</strong> ${correctAnswers} de ${quizQuestions.length}</p>
                 <p><strong>Percentual:</strong> ${percentage}%</p>
                 <div style="margin-top: 15px;">
                     <div>✅ Corretas: ${correctAnswers}</div>
-                    <div>❌ Incorretas: ${2 - correctAnswers}</div>
+                    <div>❌ Incorretas: ${quizQuestions.length - correctAnswers}</div>
                 </div>
             `;
 
-            [0, 1].forEach((index) => {
-                showAnswerResults(index);
-                document.getElementById(`explanation-${index}`).classList.add('show');
-            });
+            // Show all answer results
+            for (let i = 0; i < quizQuestions.length; i++) {
+                showAnswerResults(i);
+                document.getElementById(`explanation-${i}`).classList.add('show');
+            }
 
-            document.querySelector('.navigation').style.display = 'none';
+            document.getElementById('navigation').style.display = 'none';
             resultsDiv.classList.add('show');
         }
 
         function restartQuiz() {
             currentQuestion = 0;
-            userAnswers = [];
+            userAnswers = new Array(quizQuestions.length);
             quizFinished = false;
 
+            // Reset all question states
             document.querySelectorAll('.question-container').forEach(q => {
                 q.querySelectorAll('.option').forEach(opt => {
                     opt.classList.remove('selected', 'correct', 'incorrect');
                 });
                 q.querySelector('.explanation').classList.remove('show');
-                q.querySelector('.answer-feedback').classList.remove('show', 'correct', 'incorrect');
             });
 
             document.getElementById('results').classList.remove('show');
-            document.querySelector('.navigation').style.display = 'flex';
+            document.getElementById('navigation').style.display = 'flex';
 
             showQuestion(0);
             updateProgress();
         }
 
+        function nextButton() {
+            nextQuestion();
+        }
+
         // Event listeners
         document.addEventListener('DOMContentLoaded', function() {
-            initQuiz();
+            // Add a small delay to ensure questions.js is loaded
+            setTimeout(() => {
+                initQuiz();
+            }, 100);
             
             document.getElementById('prevBtn').addEventListener('click', previousQuestion);
             document.getElementById('nextBtn').addEventListener('click', nextButton);
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (quizFinished) return;
+            
+            switch(e.key) {
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    previousQuestion();
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    nextQuestion();
+                    break;
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                    e.preventDefault();
+                    const optionIndex = parseInt(e.key) - 1;
+                    if (optionIndex < quizQuestions[currentQuestion]?.options.length) {
+                        selectOption(currentQuestion, optionIndex);
+                    }
+                    break;
+            }
         });
     </script>
 </body>
