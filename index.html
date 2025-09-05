@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz</title>
+    <title>Quiz de Direito das Obrigações</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         
@@ -507,7 +507,7 @@
         </div>
         
         <div class="quiz-header">
-            <h1>Quiz</h1>
+            <h1>Quiz de Direito das Obrigações</h1>
             <p>Cumprimento e Não Cumprimento das Obrigações</p>
             <p><strong id="totalQuestions">50 questões</strong> sobre os conceitos fundamentais</p>
         </div>
@@ -733,12 +733,12 @@
             const scoreBreakdown = document.getElementById('scoreBreakdown');
 
             let scoreClass = 'score-poor';
-            let scoreMessage = 'Precisa estudar mais';
+            let scoreMessage = 'Tem de estudar mais';
             
-            if (percentage >= 80) {
+            if (percentage >= 90) {
                 scoreClass = 'score-excellent';
-                scoreMessage = 'Excelente conhecimento!';
-            } else if (percentage >= 60) {
+                scoreMessage = 'Excelente !';
+            } else if (percentage >= 75) {
                 scoreClass = 'score-good';
                 scoreMessage = 'Bom desempenho!';
             }
@@ -817,6 +817,9 @@
             }
         });
     </script>
+    <footer style="text-align: center; padding: 20px; color: #fff; opacity: 0.8;">
+        <p>Desenvolvido por Nuno Sousa e Silva: <a href="https://www.nss.pt" style="color: #fff; text-decoration: underline;">www.nss.pt</a></p>
+    </footer>
 </body>
 </html>
 
