@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz de Direito das Obrigações</title>
+    <title>Quiz</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         
@@ -319,10 +319,6 @@
             box-shadow: 0 8px 25px rgba(251, 191, 36, 0.6);
         }
 
-        .btn:hover::before {
-            left: 100%;
-        }
-
         .btn:active {
             transform: translateY(-1px);
         }
@@ -511,7 +507,7 @@
         </div>
         
         <div class="quiz-header">
-            <h1>Quiz de Direito das Obrigações</h1>
+            <h1>Quiz</h1>
             <p>Cumprimento e Não Cumprimento das Obrigações</p>
             <p><strong id="totalQuestions">50 questões</strong> sobre os conceitos fundamentais</p>
         </div>
@@ -535,7 +531,6 @@
             </div>
 
             <div class="navigation" id="navigation" style="display: none;">
-                <button class="btn btn-secondary" id="prevBtn">Anterior</button>
                 <span id="questionInfo">Questão 1 de 50</span>
                 <button class="btn" id="nextBtn">Próxima</button>
             </div>
@@ -643,12 +638,10 @@
 
         function selectOption(questionIndex, optionIndex) {
             if (quizFinished) return;
+            if (userAnswers[questionIndex] !== undefined) return; // Prevent changing answer
 
             const questionDiv = document.getElementById(`question-${questionIndex}`);
             const options = questionDiv.querySelectorAll('.option');
-            
-            // Remove previous selection
-            options.forEach(opt => opt.classList.remove('selected'));
             
             // Add new selection
             if (options[optionIndex]) {
@@ -657,10 +650,17 @@
             
             userAnswers[questionIndex] = optionIndex;
             
-            // Show explanation after user selects an answer
+            // Show explanation and results immediately
             document.getElementById(`explanation-${questionIndex}`).classList.add('show');
+            showAnswerResults(questionIndex);
+            
+            // Disable all options for this question
+            options.forEach(opt => {
+                opt.style.pointerEvents = 'none';
+            });
             
             updateNavigation();
+            updateProgress();
         }
 
         function showAnswerResults(questionIndex) {
@@ -688,22 +688,13 @@
             }
         }
 
-        function previousQuestion() {
-            if (currentQuestion > 0) {
-                showQuestion(currentQuestion - 1);
-            }
-        }
-
         function allQuestionsAnswered() {
             return userAnswers.length === quizQuestions.length && 
                    userAnswers.every(answer => answer !== undefined);
         }
 
         function updateNavigation() {
-            const prevBtn = document.getElementById('prevBtn');
             const nextBtn = document.getElementById('nextBtn');
-
-            prevBtn.disabled = currentQuestion === 0;
             
             if (currentQuestion === quizQuestions.length - 1) {
                 if (allQuestionsAnswered()) {
@@ -765,12 +756,6 @@
                 </div>
             `;
 
-            // Show all answer results
-            for (let i = 0; i < quizQuestions.length; i++) {
-                showAnswerResults(i);
-                document.getElementById(`explanation-${i}`).classList.add('show');
-            }
-
             document.getElementById('navigation').style.display = 'none';
             resultsDiv.classList.add('show');
         }
@@ -784,6 +769,7 @@
             document.querySelectorAll('.question-container').forEach(q => {
                 q.querySelectorAll('.option').forEach(opt => {
                     opt.classList.remove('selected', 'correct', 'incorrect');
+                    opt.style.pointerEvents = 'auto'; // Re-enable options
                 });
                 q.querySelector('.explanation').classList.remove('show');
             });
@@ -806,7 +792,6 @@
                 initQuiz();
             }, 100);
             
-            document.getElementById('prevBtn').addEventListener('click', previousQuestion);
             document.getElementById('nextBtn').addEventListener('click', nextButton);
         });
 
@@ -815,10 +800,6 @@
             if (quizFinished) return;
             
             switch(e.key) {
-                case 'ArrowLeft':
-                    e.preventDefault();
-                    previousQuestion();
-                    break;
                 case 'ArrowRight':
                     e.preventDefault();
                     nextQuestion();
@@ -838,3 +819,4 @@
     </script>
 </body>
 </html>
+
