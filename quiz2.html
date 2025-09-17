@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz de Direito</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: #2d3748;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.4) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(37, 99, 235, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(29, 78, 216, 0.4) 0%, transparent 50%);
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .author-header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .author-name {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.1) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 15px 30px;
+            color: white;
+            font-size: 1.1em;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            display: inline-block;
+            box-shadow: 0 20px 25px -5px rgba(37, 99, 235, 0.2), 0 10px 10px -5px rgba(37, 99, 235, 0.1);
+        }
+
+        .quiz-header {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            padding: 40px;
+            border-radius: 24px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 25px 50px -12px rgba(37, 99, 235, 0.3);
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        .quiz-header h1 {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+            font-size: 2.5em;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .quiz-header p {
+            color: #718096;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .quiz-header p:first-of-type {
+            color: #000000;
+            font-weight: 600;
+            font-size: 1.2em;
+        }
+
+        .quiz-header p:last-child {
+            color: #2d3748;
+            font-weight: 600;
+            font-size: 1.2em;
+        }
+
+        .quiz-content {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(37, 99, 235, 0.3);
+            animation: fadeInUp 0.8s ease-out 0.4s both;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%);
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background-image: linear-gradient(
+                -45deg,
+                rgba(255, 255, 255, .2) 25%,
+                transparent 25%,
+                transparent 50%,
+                rgba(255, 255, 255, .2) 50%,
+                rgba(255, 255, 255, .2) 75%,
+                transparent 75%,
+                transparent
+            );
+            background-size: 50px 50px;
+            animation: move 2s linear infinite;
+        }
+
+        @keyframes move {
+            0% { background-position: 0 0; }
+            100% { background-position: 50px 50px; }
+        }
+
+        .question-container {
+            padding: 40px;
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .question-container.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .question-number {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .question-progress {
+            color: #718096;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .question-text {
+            font-size: 1.2em;
+            color: #2d3748;
+            margin-bottom: 25px;
+            font-weight: 500;
+            line-height: 1.6;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .answer-section {
+            margin-bottom: 30px;
+        }
+
+        .answer-label {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .answer-textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.1) 100%);
+            backdrop-filter: blur(10px);
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #2d3748;
+            resize: vertical;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .answer-textarea:focus {
+            outline: none;
+            border-color: rgba(59, 130, 246, 0.6);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.2) 100%);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .answer-textarea::placeholder {
+            color: #4a5568;
+            font-style: italic;
+            font-weight: 500;
+        }
+
+        .guiding-topics {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-left: 4px solid #3b82f6;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 25px;
+            display: none;
+            animation: slideDown 0.4s ease-out;
+        }
+
+        .guiding-topics.show {
+            display: block;
+        }
+
+        .guiding-topics h4 {
+            color: #1d4ed8;
+            margin-bottom: 15px;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .guiding-topics p {
+            color: #4a5568;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .guiding-topics p:last-child {
+            margin-bottom: 0;
+        }
+
+        .guiding-topics ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .guiding-topics li {
+            color: #4a5568;
+            margin-bottom: 8px;
+        }
+
+        .navigation {
+            padding: 25px 40px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            background: linear-gradient(135deg, #a0aec0 0%, #718096 100%);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn:disabled::before {
+            display: none;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #a0aec0 0%, #718096 100%);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: linear-gradient(135deg, #718096 0%, #4a5568 100%);
+            box-shadow: 0 8px 25px rgba(113, 128, 150, 0.4);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .show-topics-btn {
+            background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+            font-size: 14px;
+            padding: 10px 20px;
+        }
+
+        .show-topics-btn:hover {
+            box-shadow: 0 8px 25px rgba(22, 163, 74, 0.4);
+        }
+
+        .results {
+            display: none;
+            text-align: center;
+            padding: 50px 40px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        .results h2 {
+            font-size: 2.2em;
+            margin-bottom: 25px;
+            color: #2d3748;
+            font-weight: 700;
+        }
+
+        .completion-message {
+            background: linear-gradient(135deg, rgba(22, 163, 74, 0.1) 0%, rgba(21, 128, 61, 0.05) 100%);
+            border: 1px solid rgba(22, 163, 74, 0.2);
+            border-left: 4px solid #16a34a;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 25px 0;
+            box-shadow: 0 20px 25px -5px rgba(22, 163, 74, 0.2), 0 10px 10px -5px rgba(22, 163, 74, 0.1);
+        }
+
+        .completion-message h3 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            color: #16a34a;
+            font-weight: 600;
+        }
+
+        .completion-message p {
+            color: #4a5568;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        #questionInfo {
+            color: #718096;
+            font-weight: 500;
+            font-size: 15px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #2d3748;
+            font-size: 1.2em;
+        }
+
+        .error {
+            background: linear-gradient(135deg, rgba(234, 88, 12, 0.1) 0%, rgba(194, 65, 12, 0.05) 100%);
+            border: 1px solid rgba(234, 88, 12, 0.2);
+            border-left: 4px solid #ea580c;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #c2410c;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .quiz-header {
+                padding: 30px 25px;
+            }
+            
+            .quiz-header h1 {
+                font-size: 2em;
+            }
+            
+            .question-container {
+                padding: 30px 25px;
+            }
+            
+            .navigation {
+                padding: 20px 25px;
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .action-buttons {
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            .navigation .btn {
+                width: 100%;
+                max-width: 200px;
+            }
+
+            .answer-textarea {
+                min-height: 150px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="author-header">
+            <div class="author-name">Nuno Sousa e Silva</div>
+        </div>
+        
+        <div class="quiz-header">
+            <h1>Revisões</h1>
+            <p>Extinção das Obrigações</p>
+            <p><strong id="totalQuestions">14 questões</strong></p>
+        </div>
+
+        <div class="quiz-content">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+
+            <div id="questionsContainer">
+                <div class="loading">
+                    A carregar questões...
+                </div>
+            </div>
+
+            <div class="results" id="results">
+                <h2>Quiz Concluído</h2>
+                <div class="completion-message">
+                    <h3>Parabéns!</h3>
+                    <p>Completou todas as questões do quiz. As suas respostas foram guardadas. Use os elementos de resposta fornecidos para avaliar o seu conhecimento e identificar áreas para melhoramento.</p>
+                </div>
+                <button class="btn" onclick="restartQuiz()">Recomeçar Quiz</button>
+            </div>
+
+            <div class="navigation" id="navigation" style="display: none;">
+                <span id="questionInfo">Questão 1 de 15</span>
+                <div class="action-buttons">
+                    <button class="btn show-topics-btn" id="showTopicsBtn" onclick="toggleTopics()">Mostrar Elementos de Resposta</button>
+                    <button class="btn" id="nextBtn" onclick="nextQuestion()">Próxima</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Questions data
+        const questions = [
+            {
+                question: "Ana contratou com Bruno a entrega de 100 kg de maçãs no dia 15 de outubro. No dia marcado, Ana oferece 100 kg de peras de igual valor, alegando que \"é praticamente a mesma coisa\". Bruno pode recusar? Fundamente juridicamente.",
+                guidingTopics: "Elementos de resposta: Princípio da pontualidade (art. 406.º), necessidade de cumprimento exato da prestação, distinção entre cumprimento e dação em cumprimento."
+            },
+            {
+                question: "Carlos deve €500 a Diana. Analise as seguintes situações:\n\n• Situação A: Carlos entrega a Diana um relógio no valor de €500, dizendo \"fica pago\"\n• Situação B: Carlos entrega a Diana um cheque de €500\n\nQual a natureza jurídica de cada situação e quais os efeitos?",
+                guidingTopics: "Elementos de resposta: Art. 837.º (dação pro soluto, depende de assentimento do credor) vs. art. 840.º (dação pro solvendo), efeito extintivo imediato vs. facilitação do cumprimento."
+            },
+            {
+                question: "Eduardo deve €1000 a Filipa. Com o assentimento desta, entrega-lhe um computador portátil. Duas semanas depois, Filipa descobre que o computador tem vários defeitos graves. Que direitos tem Filipa?",
+                guidingTopics: "Elementos de resposta: Art. 838.º em conjugação com arts. 905.º e 913.º e ss., aplicação das regras da compra e venda (O comprador tem o direito de exigir do vendedor a reparação da coisa ou, se for necessário e esta tiver natureza fungível, a substituição dela; mas esta obrigação não existe, se o vendedor desconhecia sem culpa o vício ou a falta de qualidade de que a coisa padece.)"
+            },
+            {
+                question: "Gustavo deve entregar uma escultura antiga a Helena no dia 2 de dezembro. Nesse dia, Helena encontra-se no estrangeiro e não designou representante. Gustavo, receando pela segurança da obra, pode proceder à consignação em depósito? Quais os requisitos e efeitos? Quem paga os custos do depósito?",
+                guidingTopics: "Elementos de resposta: Art. 841.º, pressupostos (impossibilidade da prestação), efeito extintivo retroativo (art. 846.º), custos suportados pelo credor (art. 816.º)."
+            },
+            {
+                question: "Isabel deve €300 a João por um empréstimo. João deve €200 a Isabel pela reparação do seu carro. Isabel pretende extinguer as dívidas. Pode fazê-lo? Explique o mecanismo.",
+                guidingTopics: "Elementos de resposta: Arts. 847.º e ss., requisitos da compensação, direito potestativo extintivo, declaração unilateral (art. 848.º)."
+            },
+            {
+                question: "Laura deve €1000 a Miguel resultantes de danos causados dolosamente ao carro deste (partiu-lhe os vidros no contexto de uma discussão acalorada). Miguel deve €800 a Laura de um contrato de prestação de serviços vencido. Miguel pode compensar? E Laura?",
+                guidingTopics: "Elementos de resposta: Art. 853.º (créditos que não podem ser extintos por compensação - factos ilícitos dolosos), distinção entre crédito ativo (contracrédito) e passivo (crédito principal) na compensação."
+            },
+            {
+                question: "A empresa TechSolutions devia entregar um servidor informático a DataCorp. Devido à mudança de estratégia comercial, acordaram substituir esta obrigação pelo pagamento de €5000 daqui a dois meses. Seis meses depois, descobrem que o contrato original era nulo por vício de forma. Quais as consequências?",
+                guidingTopics: "Elementos de resposta: Art. 857.º (novação objetiva), art. 860.º/1 (ligação entre obrigação primitiva e nova), animus novandi."
+            },
+            {
+                question: "Nádia deve €2000 a Óscar. Posteriormente, acordam que Paulo (amigo de Nádia) assumirá esta dívida, extinguindo-se a obrigação de Nádia. Três meses depois, descobrem que Paulo é incapaz. Analise a situação.",
+                guidingTopics: "Elementos de resposta: Art. 858.º (novação subjetiva passiva), diferença da cessão de dívida, art. 860.º/2 (nulidade da nova obrigação)."
+            },
+            {
+                question: "André, Bruno e Carlos devem solidariamente €6000 a Dora. Dora perdoa a dívida a André. Quanto devem agora Bruno e Carlos? E se Dora tivesse dito expressamente \"perdoo a André, mas quero receber a totalidade do valor\"?",
+                guidingTopics: "Elementos de resposta: Art. 864.º, distinção entre remissão in rem (reduz a dívida -- n.º 1) e in personam (pactum de non petendo -- n.º 2)."
+            },
+            {
+                question: "Sofia arrenda um apartamento a Tomás por €500/mês. Posteriormente, Sofia morre e Tomás, como seu único herdeiro, herda o apartamento. Que acontece ao contrato de arrendamento?",
+                guidingTopics: "Elementos de resposta: Art. 868.º, reunião das qualidades de credor e devedor, \"confusão imprópria\" em direitos pessoais de gozo."
+            },
+            {
+                question: "Vera, Xavier e Luana são credores solidários de Zé por €9000. Luana casa-se com Zé em regime de comunhão geral de bens. Que efeitos na obrigação?",
+                guidingTopics: "Elementos de resposta: Art. 869.º, confusão parcial em obrigações solidárias, redução proporcional da dívida."
+            },
+            {
+                question: "Abel emprestou €2.000 a Beatriz há 22 anos e nunca os reclamou. Agora pretende cobrar a dívida em tribunal. Beatriz pode defender-se? Como? O tribunal pode conhecer oficiosamente desta questão?",
+                guidingTopics: "Elementos de resposta: Art. 309.º (prazo geral de 20 anos), art. 303.º (necessidade de invocação), diferença da caducidade."
+            },
+            {
+                question: "Célia deve €1500 a Daniel. Entrega-lhe um quadro no valor de €1.200 (que Daniel aceita) e pretende compensar os restantes €300 com uma dívida que Daniel tem para consigo de igual montante, resultante de trabalhos de jardinagem. Analise juridicamente toda a operação.",
+                guidingTopics: "Elementos de resposta: Dação em cumprimento parcial (art. 837.º) + compensação do restante (arts. 847.º e ss.), verificação dos requisitos de ambos os institutos."
+            },
+            {
+                question: "Eduardo emprestou €5.000 a Francisca, tendo Gonçalo prestado fiança. Posteriormente, Eduardo perdoa a dívida a Francisca (remissão total). Gonçalo, que desconhecia os problemas financeiros de Francisca, pode ser demandado por Eduardo?",
+                guidingTopics: "Elementos de resposta: Art. 866.º (extinção das garantias com a remissão), exceção do n.º 3 (conhecimento pelo garante)."
+            }
+        ];
+
+        // Global variables
+        let currentQuestion = 0;
+        let userAnswers = [];
+        let quizFinished = false;
+
+        function initQuiz() {
+            userAnswers = new Array(questions.length); // Initialize answers array
+            
+            // Update the total questions display
+            document.getElementById('totalQuestions').textContent = `${questions.length} questões`;
+            
+            generateQuestions();
+            showQuestion(0);
+            updateNavigation();
+            updateProgress();
+            
+            // Show navigation
+            document.getElementById('navigation').style.display = 'flex';
+        }
+
+        function generateQuestions() {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = '';
+
+            questions.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question-container';
+                questionDiv.id = `question-${index}`;
+
+                questionDiv.innerHTML = `
+                    <div class="question-header">
+                        <div class="question-number">Questão ${index + 1}</div>
+                        <div class="question-progress">${index + 1} de ${questions.length}</div>
+                    </div>
+                    <div class="question-text">${q.question.replace(/\n/g, '<br>')}</div>
+                    <div class="answer-section">
+                        <label class="answer-label" for="answer-${index}">Sua resposta:</label>
+                        <textarea 
+                            class="answer-textarea" 
+                            id="answer-${index}" 
+                            placeholder="Digite aqui a sua resposta detalhada..."
+                            oninput="saveAnswer(${index}, this.value)"
+                        ></textarea>
+                    </div>
+                    <div class="guiding-topics" id="topics-${index}">
+                        <h4>Elementos de Resposta:</h4>
+                        <p>${q.guidingTopics}</p>
+                    </div>
+                `;
+
+                container.appendChild(questionDiv);
+            });
+        }
+
+        function showQuestion(questionIndex) {
+            document.querySelectorAll('.question-container').forEach(q => q.classList.remove('active'));
+            const currentQuestionDiv = document.getElementById(`question-${questionIndex}`);
+            if (currentQuestionDiv) {
+                currentQuestionDiv.classList.add('active');
+            }
+            
+            currentQuestion = questionIndex;
+            updateNavigation();
+            updateProgress();
+
+            document.getElementById('questionInfo').textContent = `Questão ${questionIndex + 1} de ${questions.length}`;
+
+            // Restore previous answer if exists
+            if (userAnswers[questionIndex] !== undefined) {
+                const textarea = document.getElementById(`answer-${questionIndex}`);
+                if (textarea) {
+                    textarea.value = userAnswers[questionIndex];
+                }
+            }
+
+            // Update the show topics button text
+            const topicsDiv = document.getElementById(`topics-${questionIndex}`);
+            const showTopicsBtn = document.getElementById('showTopicsBtn');
+            if (topicsDiv.classList.contains('show')) {
+                showTopicsBtn.textContent = 'Ocultar Elementos de Resposta';
+            } else {
+                showTopicsBtn.textContent = 'Mostrar Elementos de Resposta';
+            }
+        }
+
+        function saveAnswer(questionIndex, answer) {
+            userAnswers[questionIndex] = answer;
+            updateProgress();
+            updateNavigation();
+        }
+
+        function toggleTopics() {
+            const topicsDiv = document.getElementById(`topics-${currentQuestion}`);
+            const showTopicsBtn = document.getElementById('showTopicsBtn');
+            
+            if (topicsDiv.classList.contains('show')) {
+                topicsDiv.classList.remove('show');
+                showTopicsBtn.textContent = 'Mostrar Elementos de Resposta';
+            } else {
+                topicsDiv.classList.add('show');
+                showTopicsBtn.textContent = 'Ocultar Elementos de Resposta';
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                showQuestion(currentQuestion + 1);
+            } else if (allQuestionsAnswered()) {
+                finishQuiz();
+            }
+        }
+
+        function allQuestionsAnswered() {
+            return userAnswers.length === questions.length && 
+                   userAnswers.every(answer => answer !== undefined && answer.trim() !== '');
+        }
+
+        function updateNavigation() {
+            const nextBtn = document.getElementById('nextBtn');
+            
+            if (currentQuestion === questions.length - 1) {
+                if (allQuestionsAnswered()) {
+                    nextBtn.textContent = 'Finalizar Quiz';
+                    nextBtn.disabled = false;
+                } else {
+                    nextBtn.textContent = 'Responder Todas';
+                    nextBtn.disabled = true;
+                }
+            } else {
+                nextBtn.textContent = 'Próxima';
+                nextBtn.disabled = false;
+            }
+        }
+
+        function updateProgress() {
+            const answeredQuestions = userAnswers.filter(answer => 
+                answer !== undefined && answer.trim() !== ''
+            ).length;
+            const progressPercent = (answeredQuestions / questions.length) * 100;
+            document.getElementById('progressBar').style.width = progressPercent + '%';
+        }
+
+        function finishQuiz() {
+            quizFinished = true;
+            
+            const resultsDiv = document.getElementById('results');
+            document.getElementById('navigation').style.display = 'none';
+            resultsDiv.classList.add('show');
+
+            // Scroll to results
+            resultsDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            userAnswers = new Array(questions.length);
+            quizFinished = false;
+
+            // Clear all textareas
+            questions.forEach((_, index) => {
+                const textarea = document.getElementById(`answer-${index}`);
+                if (textarea) {
+                    textarea.value = '';
+                }
+                
+                // Hide all topics
+                const topicsDiv = document.getElementById(`topics-${index}`);
+                if (topicsDiv) {
+                    topicsDiv.classList.remove('show');
+                }
+            });
+
+            document.getElementById('results').classList.remove('show');
+            document.getElementById('navigation').style.display = 'flex';
+
+            showQuestion(0);
+            updateProgress();
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            initQuiz();
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (quizFinished) return;
+            
+            switch(e.key) {
+                case 'ArrowRight':
+                    if (!document.activeElement.classList.contains('answer-textarea')) {
+                        e.preventDefault();
+                        nextQuestion();
+                    }
+                    break;
+                case 'ArrowLeft':
+                    if (!document.activeElement.classList.contains('answer-textarea')) {
+                        e.preventDefault();
+                        if (currentQuestion > 0) {
+                            showQuestion(currentQuestion - 1);
+                        }
+                    }
+                    break;
+                case 'F1':
+                    e.preventDefault();
+                    toggleTopics();
+                    break;
+            }
+        });
+
+        // Auto-save functionality
+        setInterval(() => {
+            const currentTextarea = document.getElementById(`answer-${currentQuestion}`);
+            if (currentTextarea && document.activeElement === currentTextarea) {
+                // Auto-save current answer
+                saveAnswer(currentQuestion, currentTextarea.value);
+            }
+        }, 2000); // Auto-save every 2 seconds
+    </script>
+    <footer style="text-align: center; padding: 20px; color: #fff; opacity: 0.8;">
+        <p>Desenvolvido por Nuno Sousa e Silva: <a href="https://www.nss.pt" style="color: #fff; text-decoration: underline;">www.nss.pt</a></p>
+    </footer>
+</body>
+</html>
