@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz - Cumprimento das Obrigações</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: #1a2e1a;
+            background: linear-gradient(135deg, #16a34a 0%, #15803d 50%, #14532d 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(22, 163, 74, 0.4) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(21, 128, 61, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(20, 83, 45, 0.4) 0%, transparent 50%);
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .author-header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: fadeInDown 0.8s ease-out;
+            position: relative;
+        }
+
+        .author-name {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.1) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 15px 30px;
+            color: white;
+            font-size: 1.1em;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            display: inline-block;
+            box-shadow: 0 20px 25px -5px rgba(21, 128, 61, 0.2), 0 10px 10px -5px rgba(21, 128, 61, 0.1);
+        }
+
+        .back-to-menu {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 100%);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 10px 20px;
+            color: white;
+            font-size: 0.9em;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(21, 128, 61, 0.1);
+        }
+
+        .back-to-menu:hover {
+            transform: translateY(-50%) translateX(-5px);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.2) 100%);
+            box-shadow: 0 8px 25px rgba(21, 128, 61, 0.2);
+        }
+
+        .quiz-header {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            padding: 40px;
+            border-radius: 24px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 25px 50px -12px rgba(21, 128, 61, 0.3);
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        .quiz-header h1 {
+            background: linear-gradient(135deg, #15803d, #14532d);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+            font-size: 2.5em;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .quiz-header p {
+            color: #4a5d4a;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .quiz-header p:first-of-type {
+            color: #000000;
+            font-weight: 600;
+            font-size: 1.2em;
+        }
+
+        .quiz-header p:last-child {
+            color: #1a2e1a;
+            font-weight: 600;
+            font-size: 1.2em;
+        }
+
+        .quiz-content {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(21, 128, 61, 0.3);
+            animation: fadeInUp 0.8s ease-out 0.4s both;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #16a34a 0%, #15803d 50%, #14532d 100%);
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background-image: linear-gradient(
+                -45deg,
+                rgba(255, 255, 255, .2) 25%,
+                transparent 25%,
+                transparent 50%,
+                rgba(255, 255, 255, .2) 50%,
+                rgba(255, 255, 255, .2) 75%,
+                transparent 75%,
+                transparent
+            );
+            background-size: 50px 50px;
+            animation: move 2s linear infinite;
+        }
+
+        @keyframes move {
+            0% { background-position: 0 0; }
+            100% { background-position: 50px 50px; }
+        }
+
+        .question-container {
+            padding: 40px;
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .question-container.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .question-number {
+            background: linear-gradient(135deg, #16a34a 0%, #15803d 50%, #14532d 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 4px 15px rgba(22, 163, 74, 0.4);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .question-progress {
+            color: #4a5d4a;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .question-text {
+            font-size: 1.2em;
+            color: #1a2e1a;
+            margin-bottom: 25px;
+            font-weight: 500;
+            line-height: 1.6;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #16a34a;
+        }
+
+        .answer-section {
+            margin-bottom: 30px;
+        }
+
+        .answer-label {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #1a2e1a;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .answer-textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.1) 100%);
+            backdrop-filter: blur(10px);
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #1a2e1a;
+            resize: vertical;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .answer-textarea:focus {
+            outline: none;
+            border-color: rgba(22, 163, 74, 0.6);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.2) 100%);
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2);
+        }
+
+        .answer-textarea::placeholder {
+            color: #4a5d4a;
+            font-style: italic;
+            font-weight: 500;
+        }
+
+        .guiding-topics {
+            background: linear-gradient(135deg, rgba(22, 163, 74, 0.1) 0%, rgba(21, 128, 61, 0.05) 100%);
+            border: 1px solid rgba(22, 163, 74, 0.2);
+            border-left: 4px solid #16a34a;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 25px;
+            display: none;
+            animation: slideDown 0.4s ease-out;
+        }
+
+        .guiding-topics.show {
+            display: block;
+        }
+
+        .guiding-topics h4 {
+            color: #14532d;
+            margin-bottom: 15px;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .guiding-topics p {
+            color: #374a37;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .guiding-topics p:last-child {
+            margin-bottom: 0;
+        }
+
+        .guiding-topics ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .guiding-topics li {
+            color: #374a37;
+            margin-bottom: 8px;
+        }
+
+        .navigation {
+            padding: 25px 40px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #16a34a 0%, #15803d 50%, #14532d 100%);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(22, 163, 74, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(22, 163, 74, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn:disabled::before {
+            display: none;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: linear-gradient(135deg, #6b7280 0%, #374151 100%);
+            box-shadow: 0 8px 25px rgba(107, 114, 128, 0.4);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .show-topics-btn {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            font-size: 14px;
+            padding: 10px 20px;
+        }
+
+        .show-topics-btn:hover {
+            box-shadow: 0 8px 25px rgba(5, 150, 105, 0.4);
+        }
+
+        .show-topics-btn {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            font-size: 14px;
+            padding: 10px 20px;
+        }
+
+        .show-topics-btn:hover {
+            box-shadow: 0 8px 25px rgba(5, 150, 105, 0.4);
+        }
+
+        .results {
+            display: none;
+            text-align: center;
+            padding: 50px 40px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        .results h2 {
+            font-size: 2.2em;
+            margin-bottom: 25px;
+            color: #1a2e1a;
+            font-weight: 700;
+        }
+
+        .completion-message {
+            background: linear-gradient(135deg, rgba(5, 150, 105, 0.1) 0%, rgba(4, 120, 87, 0.05) 100%);
+            border: 1px solid rgba(5, 150, 105, 0.2);
+            border-left: 4px solid #059669;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 25px 0;
+            box-shadow: 0 20px 25px -5px rgba(5, 150, 105, 0.2), 0 10px 10px -5px rgba(5, 150, 105, 0.1);
+        }
+
+        .completion-message h3 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            color: #059669;
+            font-weight: 600;
+        }
+
+        .completion-message p {
+            color: #374a37;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        #questionInfo {
+            color: #4a5d4a;
+            font-weight: 500;
+            font-size: 15px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #1a2e1a;
+            font-size: 1.2em;
+        }
+
+        .error {
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.1) 0%, rgba(185, 28, 28, 0.05) 100%);
+            border: 1px solid rgba(220, 38, 38, 0.2);
+            border-left: 4px solid #dc2626;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #b91c1c;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .quiz-header {
+                padding: 30px 25px;
+            }
+            
+            .quiz-header h1 {
+                font-size: 2em;
+            }
+            
+            .question-container {
+                padding: 30px 25px;
+            }
+            
+            .navigation {
+                padding: 20px 25px;
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .action-buttons {
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            .navigation .btn {
+                width: 100%;
+                max-width: 200px;
+            }
+
+            .answer-textarea {
+                min-height: 150px;
+                font-size: 14px;
+            }
+
+            .back-to-menu {
+                position: static;
+                transform: none;
+                margin-bottom: 15px;
+                display: inline-block;
+            }
+
+            .back-to-menu:hover {
+                transform: translateY(-2px);
+            }
+
+            .author-header {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="author-header">
+            <div class="author-name">Nuno Sousa e Silva</div>
+        </div>
+        
+        <div class="quiz-header">
+            <h1>Revisões</h1>
+            <p>Cumprimento das Obrigações</p>
+            <p><strong id="totalQuestions">10 questões</strong></p>
+        </div>
+
+        <div class="quiz-content">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+
+            <div id="questionsContainer">
+                <div class="loading">
+                    A carregar questões...
+                </div>
+            </div>
+
+            <div class="results" id="results">
+                <h2>Quiz Concluído</h2>
+                <div class="completion-message">
+                    <h3>Parabéns!</h3>
+                    <p>Completou todas as questões sobre o cumprimento das obrigações. As suas respostas foram guardadas. Revise os elementos de resposta fornecidos para consolidar o seu conhecimento jurídico.</p>
+                </div>
+                <button class="btn" onclick="restartQuiz()">Recomeçar Quiz</button>
+            </div>
+
+            <div class="navigation" id="navigation" style="display: none;">
+                <div class="nav-left">
+                    <button class="btn btn-secondary" id="prevBtn" onclick="previousQuestion()" style="display: none;">Anterior</button>
+                </div>
+                <span id="questionInfo">Questão 1 de 10</span>
+                <div class="action-buttons">
+                    <button class="btn show-topics-btn" id="showTopicsBtn" onclick="toggleTopics()">Mostrar Elementos de Resposta</button>
+                    <button class="btn" id="nextBtn" onclick="nextQuestion()">Próxima</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Questions data based on the legal case studies
+        const questions = [
+            {
+                question: "Mário deve a Lúcia 800€ por serviços de consultoria prestados. Na data do vencimento, Mário apresenta-se no domicílio de Lúcia com 400€, propondo-se a pagar apenas metade da dívida naquele momento e o restante no mês seguinte. Lúcia recusa o pagamento parcial. Mário insiste e deixa o dinheiro sobre a mesa, considerando que cumpriu a obrigação. <em>Quid juris?</em>",
+                guidingTopics: "Princípio da integralidade (art. 763.º) - a obrigação deve ser cumprida como um todo. O credor não é obrigado a aceitar cumprimento parcial. Mora do devedor por incumprimento total da obrigação. Inexistência de cumprimento válido."
+            },
+            {
+                question: "Sofia contraiu uma dívida de 1.200€ junto de Tomás. No dia do vencimento, Sofia dirige-se ao domicílio de Tomás mas encontra apenas o seu filho menor, de 16 anos, a quem entrega o dinheiro. O menor gasta 200€ em jogos de computador e entrega os restantes 1.000€ ao pai. Tomás pretende agora cobrar os 1.200€ na íntegra, alegando que o cumprimento foi inválido. Será válido o cumprimento efetuado por Sofia?",
+                guidingTopics: "Art. 764.º/2 - capacidade do credor para receber. Cumprimento parcialmente válido (1.000€) na medida em que chegou ao patrimônio do credor. Anulabilidade quanto aos 200€ gastos pelo menor. Direito de oposição à anulação do devedor nos termos do art. 764.º/2."
+            },
+            {
+                question: "Ricardo deve entregar a Patrícia um quadro antigo avaliado em 2.000€. Na data acordada, Ricardo não encontra Patrícia em casa, pelo que decide entregar o quadro ao vizinho desta, sem qualquer autorização. O vizinho aceita receber o quadro. Três dias depois, o quadro é furtado da casa do vizinho. Patrícia exige agora que Ricardo lhe entregue outro quadro de valor equivalente. <em>Quid juris?</em>",
+                guidingTopics: "Arts. 769.º e 770.º - legitimidade ativa para receber. O vizinho não tinha legitimidade para receber sem autorização. Cumprimento inválido. Ricardo continua obrigado a entregar o quadro, assumindo o risco do perecimento."
+            },
+            {
+                question: "João contraiu uma dívida de 1.500€ junto de Ana, com vencimento a 30 de junho. A 15 de junho, João telefona a Ana oferecendo-se para pagar antecipadamente a dívida, mas Ana recusa, alegando que o dinheiro só lhe dará jeito na data acordada. João insiste e deposita o dinheiro na conta bancária de Ana. Esta utiliza imediatamente o dinheiro para um investimento que lhe rende 50€ de juros. Deve Ana devolver os juros obtidos a João?",
+                guidingTopics: "Art. 779.º - benefício do prazo é do devedor (pagabilidade antecipada). Cumprimento antecipado válido mesmo sem aceitação do credor. Questão do interusurium - em princípio, não há direito aos lucros obtidos pelo credor, salvo erro desculpável do devedor (art. 476.º/3)."
+            },
+            {
+                question: "Carla deve a Miguel a quantia de 900€, com vencimento em Lisboa. Entretanto, Miguel muda-se para o Porto por motivos profissionais, não comunicando a mudança a Carla. Na data do vencimento, Carla dirige-se a Lisboa para efetuar o pagamento, não encontrando Miguel. Carla considera que Miguel está em mora de credor. Onde deve Carla efetuar o cumprimento?",
+                guidingTopics: "Arts. 774.º e 775.º - obrigação de entrega no domicílio do credor. Mudança de domicílio do credor: deve indemnizar prejuízo ou aceitar cumprimento no domicílio do devedor. Mora do credor por não estar disponível para receber no local adequado."
+            },
+            {
+                question: "Rui contratou com Sandra a pintura de um retrato, obrigando-se esta a entregar a obra até 15 de dezembro, data do aniversário da esposa de Rui. Sandra apenas consegue terminar o retrato a 20 de dezembro. Rui recusa receber a pintura, alegando que já não tem interesse na mesma. Está Rui obrigado a receber o cumprimento tardio?",
+                guidingTopics: "Art. 777.º/2 - prazo essencial. O interesse do cumprimento limitava-se àquele momento específico (aniversário). Perda do interesse do credor no cumprimento tardio. Direito de recusa fundamentado na essencialidade do prazo."
+            },
+            {
+                question: "Francisca deve a Paulo 600€ e a Bruno 400€, ambas as dívidas vencidas. Francisca tem apenas 500€ para pagar e dirige-se a Paulo, entregando-lhe essa quantia sem especificar qual a dívida que pretende saldar. Paulo tem conhecimento da existência da dívida para com Bruno. A que dívida deve ser imputado o pagamento de 500€?",
+                guidingTopics: "Arts. 783.º e 784.º - imputação do cumprimento. Como o devedor não designou a dívida, aplicam-se as regras supletivas: dívida vencida antes da não vencida, mais onerosa antes da menos onerosa, rateio proporcional se iguais condições. Pagamento integral da dívida de 400€ e 100€ da dívida de 600€."
+            },
+            {
+                question: "André deve a Beatriz a reparação de 2.000€ por danos causados no seu veículo. Na data do vencimento, André apresenta-se no escritório de Beatriz com um cheque pós-datado para 30 dias. Beatriz recusa o cheque, exigindo pagamento em numerário. André alega que está a cumprir validamente a obrigação, uma vez que o cheque tem o mesmo valor. André tem razão?",
+                guidingTopics: "O cheque constitui uma dação pro solvendo (art. 840.º), facilitando o cumprimento mas não extinguindo imediatamente a obrigação. Os princípios da integralidade (art. 763.º) e pontualidade (art. 406.º) permitem a Beatriz recusar validamente o cumprimento por modalidade diversa da acordada. André não tem razão."
+            },
+            {
+                question: "Álvaro deve entregar a Beatriz 10 kg de batatas de determinada qualidade. No dia do cumprimento, Álvaro apresenta-se com batatas de qualidade muito inferior, claramente estragadas, alegando que está a cumprir a obrigação genérica. Beatriz recusa receber as batatas. Está Álvaro a cumprir corretamente a sua obrigação?",
+                guidingTopics: "Art. 762.º/2 - princípio da boa fé no cumprimento. Em obrigações genéricas, o devedor não pode escolher as prestações de pior qualidade. Violação da boa fé objetiva. Cumprimento defeituoso que Beatriz pode legitimamente recusar."
+            },
+            {
+                question: "Teresa contraiu um empréstimo de 2.000€ junto de Vítor, com vencimento a 31 de março. Em 15 de fevereiro, Vítor comunica a Teresa que necessita do dinheiro antecipadamente devido a uma emergência familiar. Teresa recusa pagar antes da data acordada, alegando que o prazo é em seu benefício. Vítor ameaça com uma ação judicial se Teresa não pagar de imediato. Está Teresa obrigada a pagar antes do vencimento?",
+                guidingTopics: "Art. 779.º - o benefício do prazo é, em princípio, do devedor. Teresa não pode ser obrigada a cumprir antes do vencimento. Exigibilidade apenas após o vencimento. A ameaça de Vítor é infundada juridicamente."
+            }
+        ];
+
+        // Global variables
+        let currentQuestion = 0;
+        let userAnswers = [];
+        let quizFinished = false;
+
+        function initQuiz() {
+            userAnswers = new Array(questions.length);
+            
+            document.getElementById('totalQuestions').textContent = `${questions.length} questões`;
+            
+            generateQuestions();
+            showQuestion(0);
+            updateNavigation();
+            updateProgress();
+            
+            document.getElementById('navigation').style.display = 'flex';
+        }
+
+        function generateQuestions() {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = '';
+
+            questions.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question-container';
+                questionDiv.id = `question-${index}`;
+
+                questionDiv.innerHTML = `
+                    <div class="question-header">
+                        <div class="question-number">Questão ${index + 1}</div>
+                        <div class="question-progress">${index + 1} de ${questions.length}</div>
+                    </div>
+                    <div class="question-text">${q.question.replace(/\n/g, '<br>')}</div>
+                    <div class="answer-section">
+                        <label class="answer-label" for="answer-${index}">Sua resposta:</label>
+                        <textarea 
+                            class="answer-textarea" 
+                            id="answer-${index}" 
+                            placeholder="Analise juridicamente a situação, identificando os artigos aplicáveis e fundamentando sua resposta..."
+                            oninput="saveAnswer(${index}, this.value)"
+                        ></textarea>
+                    </div>
+                    <div class="guiding-topics" id="topics-${index}">
+                        <h4>Elementos de Resposta:</h4>
+                        <p>${q.guidingTopics}</p>
+                    </div>
+                `;
+
+                container.appendChild(questionDiv);
+            });
+        }
+
+        function showQuestion(questionIndex) {
+            document.querySelectorAll('.question-container').forEach(q => q.classList.remove('active'));
+            const currentQuestionDiv = document.getElementById(`question-${questionIndex}`);
+            if (currentQuestionDiv) {
+                currentQuestionDiv.classList.add('active');
+            }
+            
+            currentQuestion = questionIndex;
+            updateNavigation();
+            updateProgress();
+
+            document.getElementById('questionInfo').textContent = `Questão ${questionIndex + 1} de ${questions.length}`;
+
+            // Restore previous answer if exists
+            if (userAnswers[questionIndex] !== undefined) {
+                const textarea = document.getElementById(`answer-${questionIndex}`);
+                if (textarea) {
+                    textarea.value = userAnswers[questionIndex];
+                }
+            }
+
+            // Update the show topics button text
+            const topicsDiv = document.getElementById(`topics-${questionIndex}`);
+            const showTopicsBtn = document.getElementById('showTopicsBtn');
+            if (topicsDiv.classList.contains('show')) {
+                showTopicsBtn.textContent = 'Ocultar Elementos de Resposta';
+            } else {
+                showTopicsBtn.textContent = 'Mostrar Elementos de Resposta';
+            }
+        }
+
+        function saveAnswer(questionIndex, answer) {
+            userAnswers[questionIndex] = answer;
+            updateProgress();
+            updateNavigation();
+        }
+
+        function toggleTopics() {
+            const topicsDiv = document.getElementById(`topics-${currentQuestion}`);
+            const showTopicsBtn = document.getElementById('showTopicsBtn');
+            
+            if (topicsDiv && showTopicsBtn) {
+                if (topicsDiv.classList.contains('show')) {
+                    topicsDiv.classList.remove('show');
+                    showTopicsBtn.textContent = 'Mostrar Elementos de Resposta';
+                } else {
+                    topicsDiv.classList.add('show');
+                    showTopicsBtn.textContent = 'Ocultar Elementos de Resposta';
+                }
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                showQuestion(currentQuestion + 1);
+            } else if (allQuestionsAnswered()) {
+                finishQuiz();
+            }
+        }
+
+        function allQuestionsAnswered() {
+            return userAnswers.length === questions.length && 
+                   userAnswers.every(answer => answer !== undefined && answer.trim() !== '');
+        }
+
+        function updateNavigation() {
+            const nextBtn = document.getElementById('nextBtn');
+            
+            if (currentQuestion === questions.length - 1) {
+                if (allQuestionsAnswered()) {
+                    nextBtn.textContent = 'Finalizar Quiz';
+                    nextBtn.disabled = false;
+                } else {
+                    nextBtn.textContent = 'Responder Todas';
+                    nextBtn.disabled = true;
+                }
+            } else {
+                nextBtn.textContent = 'Próxima';
+                nextBtn.disabled = false;
+            }
+        }
+
+        function updateProgress() {
+            const answeredQuestions = userAnswers.filter(answer => 
+                answer !== undefined && answer.trim() !== ''
+            ).length;
+            const progressPercent = (answeredQuestions / questions.length) * 100;
+            document.getElementById('progressBar').style.width = progressPercent + '%';
+        }
+
+        function finishQuiz() {
+            quizFinished = true;
+            
+            const resultsDiv = document.getElementById('results');
+            document.getElementById('navigation').style.display = 'none';
+            resultsDiv.classList.add('show');
+
+            // Scroll to results
+            resultsDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            userAnswers = new Array(questions.length);
+            quizFinished = false;
+
+            // Clear all textareas
+            questions.forEach((_, index) => {
+                const textarea = document.getElementById(`answer-${index}`);
+                if (textarea) {
+                    textarea.value = '';
+                }
+            });
+
+            document.getElementById('results').classList.remove('show');
+            document.getElementById('navigation').style.display = 'flex';
+
+            showQuestion(0);
+            updateProgress();
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait a bit more to ensure all elements are rendered
+            setTimeout(() => {
+                initQuiz();
+            }, 100);
+        });
+
+        // Fallback initialization
+        window.addEventListener('load', function() {
+            if (!document.querySelector('.question-container.active')) {
+                initQuiz();
+            }
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (quizFinished) return;
+            
+            switch(e.key) {
+                case 'ArrowRight':
+                    if (!document.activeElement.classList.contains('answer-textarea')) {
+                        e.preventDefault();
+                        nextQuestion();
+                    }
+                    break;
+                case 'ArrowLeft':
+                    if (!document.activeElement.classList.contains('answer-textarea')) {
+                        e.preventDefault();
+                        if (currentQuestion > 0) {
+                            showQuestion(currentQuestion - 1);
+                        }
+                    }
+                    break;
+            }
+        });
+
+        // Auto-save functionality
+        setInterval(() => {
+            const currentTextarea = document.getElementById(`answer-${currentQuestion}`);
+            if (currentTextarea && document.activeElement === currentTextarea) {
+                // Auto-save current answer
+                saveAnswer(currentQuestion, currentTextarea.value);
+            }
+        }, 2000); // Auto-save every 2 seconds
+    </script>
+    <footer style="text-align: center; padding: 40px 20px 20px; color: #fff; opacity: 0.8; margin-top: 40px;">
+        <p>Desenvolvido por Nuno Sousa e Silva: <a href="https://www.nss.pt" target="_blank" style="color: #fff; text-decoration: underline;">www.nss.pt</a></p>
+    </footer>
+</body>
+</html>
