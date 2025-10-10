@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz - Aspectos Específicos do Cumprimento</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: #5d4348;
+            background: linear-gradient(135deg, #d4a5a5 0%, #c9999e 50%, #b88b92 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(212, 165, 165, 0.4) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(201, 153, 158, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(184, 139, 146, 0.4) 0%, transparent 50%);
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .author-header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: fadeInDown 0.8s ease-out;
+            position: relative;
+        }
+
+        .author-name {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.1) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 15px 30px;
+            color: white;
+            font-size: 1.1em;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            display: inline-block;
+            box-shadow: 0 20px 25px -5px rgba(201, 153, 158, 0.2), 0 10px 10px -5px rgba(201, 153, 158, 0.1);
+        }
+
+        .back-to-menu {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 100%);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 10px 20px;
+            color: white;
+            font-size: 0.9em;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(201, 153, 158, 0.1);
+        }
+
+        .back-to-menu:hover {
+            transform: translateY(-50%) translateX(-5px);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.2) 100%);
+            box-shadow: 0 8px 25px rgba(201, 153, 158, 0.2);
+        }
+
+        .quiz-header {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            padding: 40px;
+            border-radius: 24px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 25px 50px -12px rgba(201, 153, 158, 0.3);
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        .quiz-header h1 {
+            background: linear-gradient(135deg, #c9999e, #b88b92);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+            font-size: 2.5em;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .quiz-header p {
+            color: #5d4348;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .quiz-header p:first-of-type {
+            color: #000000;
+            font-weight: 600;
+            font-size: 1.2em;
+        }
+
+        .quiz-header p:last-child {
+            color: #5d4348;
+            font-weight: 600;
+            font-size: 1.2em;
+        }
+
+        .quiz-content {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(219, 39, 119, 0.3);
+            animation: fadeInUp 0.8s ease-out 0.4s both;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #d4a5a5 0%, #c9999e 50%, #b88b92 100%);
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background-image: linear-gradient(
+                -45deg,
+                rgba(255, 255, 255, .2) 25%,
+                transparent 25%,
+                transparent 50%,
+                rgba(255, 255, 255, .2) 50%,
+                rgba(255, 255, 255, .2) 75%,
+                transparent 75%,
+                transparent
+            );
+            background-size: 50px 50px;
+            animation: move 2s linear infinite;
+        }
+
+        @keyframes move {
+            0% { background-position: 0 0; }
+            100% { background-position: 50px 50px; }
+        }
+
+        .question-container {
+            padding: 40px;
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .question-container.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .question-number {
+            background: linear-gradient(135deg, #d4a5a5 0%, #c9999e 50%, #b88b92 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 4px 15px rgba(212, 165, 165, 0.4);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .question-progress {
+            color: #5d4348;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .question-text {
+            font-size: 1.2em;
+            color: #5d4348;
+            margin-bottom: 25px;
+            font-weight: 500;
+            line-height: 1.6;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #d4a5a5;
+        }
+
+        .answer-section {
+            margin-bottom: 30px;
+        }
+
+        .answer-label {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #5d4348;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .answer-textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.1) 100%);
+            backdrop-filter: blur(10px);
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #5d4348;
+            resize: vertical;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .answer-textarea:focus {
+            outline: none;
+            border-color: rgba(212, 165, 165, 0.6);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.2) 100%);
+            box-shadow: 0 0 0 3px rgba(212, 165, 165, 0.2);
+        }
+
+        .answer-textarea::placeholder {
+            color: #8b7579;
+            font-style: italic;
+            font-weight: 500;
+        }
+
+        .guiding-topics {
+            background: linear-gradient(135deg, rgba(212, 165, 165, 0.1) 0%, rgba(201, 153, 158, 0.05) 100%);
+            border: 1px solid rgba(212, 165, 165, 0.2);
+            border-left: 4px solid #d4a5a5;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 25px;
+            display: none;
+            animation: slideDown 0.4s ease-out;
+        }
+
+        .guiding-topics.show {
+            display: block;
+        }
+
+        .guiding-topics h4 {
+            color: #b88b92;
+            margin-bottom: 15px;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .guiding-topics p {
+            color: #5d4348;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .guiding-topics p:last-child {
+            margin-bottom: 0;
+        }
+
+        .guiding-topics ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .guiding-topics li {
+            color: #5d4348;
+            margin-bottom: 8px;
+        }
+
+        .navigation {
+            padding: 25px 40px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #d4a5a5 0%, #c9999e 50%, #b88b92 100%);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(212, 165, 165, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(212, 165, 165, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn:disabled::before {
+            display: none;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: linear-gradient(135deg, #6b7280 0%, #374151 100%);
+            box-shadow: 0 8px 25px rgba(107, 114, 128, 0.4);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .show-topics-btn {
+            background: linear-gradient(135deg, #e3c5c5 0%, #d4a5a5 100%);
+            font-size: 14px;
+            padding: 10px 20px;
+        }
+
+        .show-topics-btn:hover {
+            box-shadow: 0 8px 25px rgba(227, 197, 197, 0.4);
+        }
+
+        .results {
+            display: none;
+            text-align: center;
+            padding: 50px 40px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        .results h2 {
+            font-size: 2.2em;
+            margin-bottom: 25px;
+            color: #5d4348;
+            font-weight: 700;
+        }
+
+        .completion-message {
+            background: linear-gradient(135deg, rgba(227, 197, 197, 0.1) 0%, rgba(212, 165, 165, 0.05) 100%);
+            border: 1px solid rgba(227, 197, 197, 0.2);
+            border-left: 4px solid #e3c5c5;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 25px 0;
+            box-shadow: 0 20px 25px -5px rgba(227, 197, 197, 0.2), 0 10px 10px -5px rgba(227, 197, 197, 0.1);
+        }
+
+        .completion-message h3 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            color: #d4a5a5;
+            font-weight: 600;
+        }
+
+        .completion-message p {
+            color: #5d4348;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        #questionInfo {
+            color: #8b7579;
+            font-weight: 500;
+            font-size: 15px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #5d4348;
+            font-size: 1.2em;
+        }
+
+        .error {
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.1) 0%, rgba(185, 28, 28, 0.05) 100%);
+            border: 1px solid rgba(220, 38, 38, 0.2);
+            border-left: 4px solid #dc2626;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #b91c1c;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .quiz-header {
+                padding: 30px 25px;
+            }
+            
+            .quiz-header h1 {
+                font-size: 2em;
+            }
+            
+            .question-container {
+                padding: 30px 25px;
+            }
+            
+            .navigation {
+                padding: 20px 25px;
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .action-buttons {
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            .navigation .btn {
+                width: 100%;
+                max-width: 200px;
+            }
+
+            .answer-textarea {
+                min-height: 150px;
+                font-size: 14px;
+            }
+
+            .back-to-menu {
+                position: static;
+                transform: none;
+                margin-bottom: 15px;
+                display: inline-block;
+            }
+
+            .back-to-menu:hover {
+                transform: translateY(-2px);
+            }
+
+            .author-header {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="author-header">
+            <div class="author-name">Nuno Sousa e Silva</div>
+        </div>
+        
+        <div class="quiz-header">
+            <h1>Revisões</h1>
+            <p>Aspectos Específicos do Cumprimento de Certas Obrigações</p>
+            <p><strong id="totalQuestions">10 questões</strong></p>
+        </div>
+
+        <div class="quiz-content">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+
+            <div id="questionsContainer">
+                <div class="loading">
+                    A carregar questões...
+                </div>
+            </div>
+
+            <div class="results" id="results">
+                <h2>Quiz Concluído</h2>
+                <div class="completion-message">
+                    <h3>Parabéns!</h3>
+                    <p>Completou todas as questões sobre os aspectos específicos do cumprimento de certas obrigações. As suas respostas foram guardadas. Revise os elementos de resposta fornecidos para consolidar o seu conhecimento jurídico.</p>
+                </div>
+                <button class="btn" onclick="restartQuiz()">Recomeçar Quiz</button>
+            </div>
+
+            <div class="navigation" id="navigation" style="display: none;">
+                <div class="nav-left">
+                    <button class="btn btn-secondary" id="prevBtn" onclick="previousQuestion()" style="display: none;">Anterior</button>
+                </div>
+                <span id="questionInfo">Questão 1 de 10</span>
+                <div class="action-buttons">
+                    <button class="btn show-topics-btn" id="showTopicsBtn" onclick="toggleTopics()">Mostrar Elementos de Resposta</button>
+                    <button class="btn" id="nextBtn" onclick="nextQuestion()">Próxima</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "Carlos devia 5.000€ a Diana, decorrente de danos causados num acidente de viação, mas a obrigação já prescreveu há dois anos, tendo sido invocada a prescrição pelo seu mandatário, mas sem o seu conhecimento. Sentindo-se moralmente obrigado, Carlos decide pagar voluntariamente a quantia na íntegra. Uma semana depois, ao consultar um advogado, descobre que a dívida estava prescrita e pretende agora pedir a repetição do pagamento, alegando que pagou por erro sobre a coercibilidade jurídica da dívida. Pode Carlos exigir a restituição dos 5.000€?",
+                guidingTopics: "Obrigações naturais (art. 402.º) - vinculação jurídica fraca mas existente. Preclusão da repetição do cumprimento espontâneo (art. 403.º/2) - não há lugar à restituição mesmo quando o devedor paga por erro sobre a coercibilidade jurídica. Carlos não pode exigir a restituição porque, apesar da prescrição, a obrigação natural subsiste e o cumprimento espontâneo é irrepetível."
+            },
+            {
+                question: "Eduardo, Francisco e Gabriel são devedores solidários de Helena relativamente a uma dívida de 9.000€, sem que haja qualquer acordo sobre as quotas internas. Eduardo paga a totalidade da dívida a Helena. Entretanto, verifica-se que Francisco está insolvente. Quanto pode Eduardo exigir de Gabriel em sede de regresso? Como se distribui o risco da insolvência de Francisco?",
+                guidingTopics: "Solidariedade passiva (art. 512.º) - cada devedor responde pela totalidade perante o credor. Direito de regresso (art. 524.º) - quem paga tem direito de regresso contra os outros na proporção das partes internas. Presunção de partes iguais (art. 516.º) - 3.000€ cada. Risco de insolvência (art. 526.º) - os condevedores solventes partilham entre si a quota do insolvente. Eduardo pode exigir 4.500€ de Gabriel (3.000€ da sua parte + 1.500€ de metade da quota de Francisco)."
+            },
+            {
+                question: "Irene contratou com José a entrega de 100 kg de café de qualidade superior. No dia do cumprimento, José apresenta-se com 100 kg de café mas de qualidade claramente inferior, com grãos defeituosos e mal torrados, alegando que se trata de uma obrigação genérica e que pode escolher qualquer café dentro do género. Irene recusa receber. José tem razão ao invocar a natureza genérica da obrigação para justificar a sua escolha?",
+                guidingTopics: "Obrigações genéricas (art. 539.º) - determinadas por género e quantidade. Princípio da boa-fé no cumprimento (art. 762.º/2) - o devedor não pode escolher prestações de pior qualidade. Direito de escolha do devedor (art. 539.º) não é absoluto, devendo respeitar os critérios de qualidade acordados. Cumprimento defeituoso que Irene pode legitimamente recusar. José não tem razão."
+            },
+            {
+                question: "Laura vendeu a Miguel um automóvel BMW Série 3 (matrícula AA-12-BB) ou uma motorizada Vespa Primavera (matrícula CC-34-DD), ficando estipulado que a escolha caberia a Miguel. Antes de Miguel exercer a escolha, o automóvel fica totalmente destruído num incêndio sem culpa de qualquer das partes. Quais são agora as opções de Miguel? A obrigação extinguiu-se ou subsiste?",
+                guidingTopics: "Obrigações alternativas (art. 543.º) - duas ou mais prestações devidas mas o devedor libera-se com o cumprimento de apenas uma. Impossibilidade superveniente não imputável (art. 545.º) - redução à parte possível. Direito de escolha do credor - se a escolha pertence ao credor e uma prestação se torna impossível sem culpa, a obrigação reduz-se à prestação possível. Miguel tem apenas direito a exigir a motorizada Vespa, não havendo lugar a indemnização ou resolução."
+            },
+            {
+                question: "Nádia emprestou 15.000€ a Olívia, acordando uma taxa de juros remuneratórios de 6% ao ano. Passados três anos, Olívia não pagou qualquer quantia, nem capital nem juros. Nádia pretende agora exigir juros sobre os juros vencidos dos dois primeiros anos. Olívia recusa, alegando a proibição do anatocismo. Tem Nádia direito a juros de mora sobre os juros remuneratórios vencidos?",
+                guidingTopics: "Proibição do anatocismo (art. 560.º) - não são devidos juros pelo atraso no pagamento de juros. Exceções: acordo posterior ao vencimento, notificação judicial para pagamento com pelo menos um ano de juros em atraso (art. 560.º/2). Acessoriedade da obrigação de juros mas autonomia para certos efeitos (art. 561.º). Nádia não tem direito automático a juros sobre juros, exceto se notificar judicialmente Olívia e respeitados os requisitos do art. 560.º/2."
+            },
+            {
+                question: "Pedro, Quirino e Rui constituíram uma sociedade e contraíram solidariamente um empréstimo bancário de 30.000€. O banco cobra a totalidade da dívida a Pedro. Entretanto, Pedro descobre que a dívida estava prescrita em relação a Quirino (que tinha invocado a prescrição ao banco) mas não em relação a Rui. Pedro pagou sem invocar a prescrição. Que direitos tem Pedro contra Quirino e Rui?",
+                guidingTopics: "Solidariedade passiva (art. 512.º) e direito de regresso (art. 524.º). Prescrição parcial (art. 521.º/1) - quando a dívida está prescrita apenas quanto a alguns devedores. Direito de regresso mesmo quando a dívida estava prescrita para alguns condevedores. Oposição de meios de defesa não invocados (art. 525.º e 521.º/2). Pedro tem direito de regresso contra Rui pela sua parte (10.000€) mas Quirino pode opor a prescrição no regresso, logo Pedro não pode exigir a parte de Quirino (10.000€), ficando prejudicado."
+            },
+            {
+                question: "Sara deve entregar a Tiago 50 kg de arroz tipo carolino. Na data do vencimento, todo o arroz carolino que Sara tinha armazenado (120kg) foi destruído numa inundação sem culpa sua. Sara alega que a obrigação se extinguiu por impossibilidade superveniente. Tiago exige o cumprimento, alegando que Sara pode comprar arroz carolino no mercado. Quem tem razão?",
+                guidingTopics: "Obrigações genéricas (art. 539.º e 540.º) - genus nunquam perit (o género não perece). Em obrigações de género ilimitado, o devedor responde pelo cumprimento mesmo que pereçam os bens que tinha. Diferença entre género limitado e ilimitado. Risco do perecimento cabe ao devedor que deve obter a prestação no mercado. Tiago tem razão - Sara continua obrigada a entregar o arroz, devendo adquiri-lo junto de terceiros se necessário."
+            },
+            {
+                question: "Umbelina deve a Vasco $12.000 dólares americanos, com vencimento no dia 1 de junho. Na data do vencimento, Umbelina apresenta-se com o equivalente em euros ao câmbio do dia. Vasco recusa, exigindo pagamento em dólares. Umbelina insiste que pode pagar em euros. Está Umbelina obrigada a pagar em dólares ou pode cumprir em euros?",
+                guidingTopics: "Obrigações pecuniárias em moeda estrangeira/valutárias (art. 558.º). Faculdade de cumprimento em moeda com curso legal no país - o devedor pode cumprir em euros ao câmbio do dia do vencimento (ou do dia em que deveria ter sido efetuado o cumprimento se em mora), salvo estipulação em contrário. Umbelina pode cumprir em euros ao câmbio do dia, a não ser que as partes tenham excluído essa faculdade."
+            },
+            {
+                question: "Henrique deve entregar a Isabel um quadro de determinado pintor (obra X) ou uma escultura de outro artista (obra Y), cabendo a escolha a Henrique. Antes de Henrique fazer a escolha, a escultura é destruída por sua culpa. Isabel pretende agora ser indemnizada ou resolver o contrato. Henrique alega que basta entregar o quadro. Quem tem razão? Que direitos assiste a Isabel?",
+                guidingTopics: "Obrigações alternativas (art. 543.º). Impossibilidade superveniente imputável ao devedor (art. 546.º). Se a escolha cabe ao devedor, este presta a possível; se a escolha cabe ao credor, este pode escolher a possível, exigir indemnização pelos danos da impossibilidade da outra ou resolver o contrato (art. 546.º 2.ª parte). A escolha cabe a Henrique, logo deve prestar o quadro (obra possível). Isabel não tem direito a indemnização ou resolução neste caso. Henrique tem razão."
+            },
+            {
+                question: "Zulmira emprestou 8.000€ a André, ficando estipulado um prazo de reembolso de 2 anos. Passados 6 meses, André decide pagar antecipadamente, mas Zulmira recusa receber, alegando que combinou o prazo exatamente porque só necessitaria do dinheiro daqui a 2 anos. André insiste que tem o direito de pagar antecipadamente e transfere o dinheiro para a conta de Zulmira. Esta utiliza-o num investimento que lhe rende 400€. Deve Zulmira devolver esses 400€ a André?",
+                guidingTopics: "Benefício do prazo (art. 779.º) - presume-se estabelecido a favor do devedor (pagabilidade antecipada). O devedor pode cumprir antecipadamente mesmo sem aceitação do credor. Cumprimento antecipado válido. Questão do interusurium (juros/rendimentos obtidos pelo credor com o uso antecipado do capital) - em princípio o credor não tem de devolver os lucros obtidos, salvo erro desculpável do devedor quanto à exigibilidade (art. 476.º/3). Zulmira não deve devolver os 400€, salvo se André tivesse razões para crer erroneamente que a dívida era exigível."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let userAnswers = [];
+        let quizFinished = false;
+
+        function initQuiz() {
+            userAnswers = new Array(questions.length);
+            
+            document.getElementById('totalQuestions').textContent = `${questions.length} questões`;
+            
+            generateQuestions();
+            showQuestion(0);
+            updateNavigation();
+            updateProgress();
+            
+            document.getElementById('navigation').style.display = 'flex';
+        }
+
+        function generateQuestions() {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = '';
+
+            questions.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question-container';
+                questionDiv.id = `question-${index}`;
+
+                questionDiv.innerHTML = `
+                    <div class="question-header">
+                        <div class="question-number">Questão ${index + 1}</div>
+                        <div class="question-progress">${index + 1} de ${questions.length}</div>
+                    </div>
+                    <div class="question-text">${q.question.replace(/\n/g, '<br>')}</div>
+                    <div class="answer-section">
+                        <label class="answer-label" for="answer-${index}">Sua resposta:</label>
+                        <textarea 
+                            class="answer-textarea" 
+                            id="answer-${index}" 
+                            placeholder="Analise juridicamente a situação, identificando os artigos aplicáveis e fundamentando sua resposta..."
+                            oninput="saveAnswer(${index}, this.value)"
+                        ></textarea>
+                    </div>
+                    <div class="guiding-topics" id="topics-${index}">
+                        <h4>Elementos de Resposta:</h4>
+                        <p>${q.guidingTopics}</p>
+                    </div>
+                `;
+
+                container.appendChild(questionDiv);
+            });
+        }
+
+        function showQuestion(questionIndex) {
+            document.querySelectorAll('.question-container').forEach(q => q.classList.remove('active'));
+            const currentQuestionDiv = document.getElementById(`question-${questionIndex}`);
+            if (currentQuestionDiv) {
+                currentQuestionDiv.classList.add('active');
+            }
+            
+            currentQuestion = questionIndex;
+            updateNavigation();
+            updateProgress();
+
+            document.getElementById('questionInfo').textContent = `Questão ${questionIndex + 1} de ${questions.length}`;
+
+            if (userAnswers[questionIndex] !== undefined) {
+                const textarea = document.getElementById(`answer-${questionIndex}`);
+                if (textarea) {
+                    textarea.value = userAnswers[questionIndex];
+                }
+            }
+
+            const topicsDiv = document.getElementById(`topics-${questionIndex}`);
+            const showTopicsBtn = document.getElementById('showTopicsBtn');
+            if (topicsDiv.classList.contains('show')) {
+                showTopicsBtn.textContent = 'Ocultar Elementos de Resposta';
+            } else {
+                showTopicsBtn.textContent = 'Mostrar Elementos de Resposta';
+            }
+        }
+
+        function saveAnswer(questionIndex, answer) {
+            userAnswers[questionIndex] = answer;
+            updateProgress();
+            updateNavigation();
+        }
+
+        function toggleTopics() {
+            const topicsDiv = document.getElementById(`topics-${currentQuestion}`);
+            const showTopicsBtn = document.getElementById('showTopicsBtn');
+            
+            if (topicsDiv && showTopicsBtn) {
+                if (topicsDiv.classList.contains('show')) {
+                    topicsDiv.classList.remove('show');
+                    showTopicsBtn.textContent = 'Mostrar Elementos de Resposta';
+                } else {
+                    topicsDiv.classList.add('show');
+                    showTopicsBtn.textContent = 'Ocultar Elementos de Resposta';
+                }
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                showQuestion(currentQuestion + 1);
+            } else if (allQuestionsAnswered()) {
+                finishQuiz();
+            }
+        }
+
+        function allQuestionsAnswered() {
+            return userAnswers.length === questions.length && 
+                   userAnswers.every(answer => answer !== undefined && answer.trim() !== '');
+        }
+
+        function updateNavigation() {
+            const nextBtn = document.getElementById('nextBtn');
+            
+            if (currentQuestion === questions.length - 1) {
+                if (allQuestionsAnswered()) {
+                    nextBtn.textContent = 'Finalizar Quiz';
+                    nextBtn.disabled = false;
+                } else {
+                    nextBtn.textContent = 'Responder Todas';
+                    nextBtn.disabled = true;
+                }
+            } else {
+                nextBtn.textContent = 'Próxima';
+                nextBtn.disabled = false;
+            }
+        }
+
+        function updateProgress() {
+            const answeredQuestions = userAnswers.filter(answer => 
+                answer !== undefined && answer.trim() !== ''
+            ).length;
+            const progressPercent = (answeredQuestions / questions.length) * 100;
+            document.getElementById('progressBar').style.width = progressPercent + '%';
+        }
+
+        function finishQuiz() {
+            quizFinished = true;
+            
+            const resultsDiv = document.getElementById('results');
+            document.getElementById('navigation').style.display = 'none';
+            resultsDiv.classList.add('show');
+
+            resultsDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            userAnswers = new Array(questions.length);
+            quizFinished = false;
+
+            questions.forEach((_, index) => {
+                const textarea = document.getElementById(`answer-${index}`);
+                if (textarea) {
+                    textarea.value = '';
+                }
+            });
+
+            document.getElementById('results').classList.remove('show');
+            document.getElementById('navigation').style.display = 'flex';
+
+            showQuestion(0);
+            updateProgress();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                initQuiz();
+            }, 100);
+        });
+
+        window.addEventListener('load', function() {
+            if (!document.querySelector('.question-container.active')) {
+                initQuiz();
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (quizFinished) return;
+            
+            switch(e.key) {
+                case 'ArrowRight':
+                    if (!document.activeElement.classList.contains('answer-textarea')) {
+                        e.preventDefault();
+                        nextQuestion();
+                    }
+                    break;
+                case 'ArrowLeft':
+                    if (!document.activeElement.classList.contains('answer-textarea')) {
+                        e.preventDefault();
+                        if (currentQuestion > 0) {
+                            showQuestion(currentQuestion - 1);
+                        }
+                    }
+                    break;
+            }
+        });
+
+        setInterval(() => {
+            const currentTextarea = document.getElementById(`answer-${currentQuestion}`);
+            if (currentTextarea && document.activeElement === currentTextarea) {
+                saveAnswer(currentQuestion, currentTextarea.value);
+            }
+        }, 2000);
+    </script>
+    <footer style="text-align: center; padding: 40px 20px 20px; color: #fff; opacity: 0.8; margin-top: 40px;">
+        <p>Desenvolvido por Nuno Sousa e Silva: <a href="https://www.nss.pt" target="_blank" style="color: #fff; text-decoration: underline;">www.nss.pt</a></p>
+    </footer>
+</body>
+</html>
