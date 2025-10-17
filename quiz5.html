@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz - Transmissão das Obrigações</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: #0e4a5f;
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 50%, #0e7490 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(6, 182, 212, 0.4) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(8, 145, 178, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(14, 116, 144, 0.4) 0%, transparent 50%);
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .author-header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: fadeInDown 0.8s ease-out;
+            position: relative;
+        }
+
+        .author-name {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.1) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 15px 30px;
+            color: white;
+            font-size: 1.1em;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            display: inline-block;
+            box-shadow: 0 20px 25px -5px rgba(8, 145, 178, 0.2), 0 10px 10px -5px rgba(8, 145, 178, 0.1);
+        }
+
+        .quiz-header {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            padding: 40px;
+            border-radius: 24px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 25px 50px -12px rgba(8, 145, 178, 0.3);
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        .quiz-header h1 {
+            background: linear-gradient(135deg, #0891b2, #0e7490);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+            font-size: 2.5em;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .quiz-header p {
+            color: #0e4a5f;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .quiz-header p:first-of-type {
+            color: #065f73;
+            font-weight: 600;
+            font-size: 1.2em;
+        }
+
+        .quiz-header p:last-child {
+            color: #0e4a5f;
+            font-weight: 600;
+            font-size: 1.2em;
+        }
+
+        .quiz-content {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(8, 145, 178, 0.3);
+            animation: fadeInUp 0.8s ease-out 0.4s both;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 50%, #0e7490 100%);
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            width: 0%;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background-image: linear-gradient(
+                -45deg,
+                rgba(255, 255, 255, .2) 25%,
+                transparent 25%,
+                transparent 50%,
+                rgba(255, 255, 255, .2) 50%,
+                rgba(255, 255, 255, .2) 75%,
+                transparent 75%,
+                transparent
+            );
+            background-size: 50px 50px;
+            animation: move 2s linear infinite;
+        }
+
+        @keyframes move {
+            0% { background-position: 0 0; }
+            100% { background-position: 50px 50px; }
+        }
+
+        .question-container {
+            padding: 40px;
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .question-container.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .question-number {
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 50%, #0e7490 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .question-progress {
+            color: #0e4a5f;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .question-text {
+            font-size: 1.2em;
+            color: #0e4a5f;
+            margin-bottom: 25px;
+            font-weight: 500;
+            line-height: 1.6;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #06b6d4;
+        }
+
+        .answer-section {
+            margin-bottom: 30px;
+        }
+
+        .answer-label {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #0e4a5f;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .answer-textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.1) 100%);
+            backdrop-filter: blur(10px);
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #0e4a5f;
+            resize: vertical;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .answer-textarea:focus {
+            outline: none;
+            border-color: rgba(6, 182, 212, 0.6);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.2) 100%);
+            box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2);
+        }
+
+        .answer-textarea::placeholder {
+            color: #5a8794;
+            font-style: italic;
+            font-weight: 500;
+        }
+
+        .guiding-topics {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(8, 145, 178, 0.05) 100%);
+            border: 1px solid rgba(6, 182, 212, 0.2);
+            border-left: 4px solid #06b6d4;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 25px;
+            display: none;
+            animation: slideDown 0.4s ease-out;
+        }
+
+        .guiding-topics.show {
+            display: block;
+        }
+
+        .guiding-topics h4 {
+            color: #0891b2;
+            margin-bottom: 15px;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .guiding-topics p {
+            color: #0e4a5f;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .guiding-topics p:last-child {
+            margin-bottom: 0;
+        }
+
+        .guiding-topics strong {
+            color: #0891b2;
+        }
+
+        .navigation {
+            padding: 25px 40px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 50%, #0e7490 100%);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(6, 182, 212, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn:disabled::before {
+            display: none;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: linear-gradient(135deg, #6b7280 0%, #374151 100%);
+            box-shadow: 0 8px 25px rgba(107, 114, 128, 0.4);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .show-topics-btn {
+            background: linear-gradient(135deg, #67e8f9 0%, #22d3ee 100%);
+            font-size: 14px;
+            padding: 10px 20px;
+        }
+
+        .show-topics-btn:hover {
+            box-shadow: 0 8px 25px rgba(103, 232, 249, 0.4);
+        }
+
+        .results {
+            display: none;
+            text-align: center;
+            padding: 50px 40px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        .results h2 {
+            font-size: 2.2em;
+            margin-bottom: 25px;
+            color: #0e4a5f;
+            font-weight: 700;
+        }
+
+        .completion-message {
+            background: linear-gradient(135deg, rgba(103, 232, 249, 0.1) 0%, rgba(34, 211, 238, 0.05) 100%);
+            border: 1px solid rgba(103, 232, 249, 0.2);
+            border-left: 4px solid #22d3ee;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 25px 0;
+            box-shadow: 0 20px 25px -5px rgba(103, 232, 249, 0.2), 0 10px 10px -5px rgba(103, 232, 249, 0.1);
+        }
+
+        .completion-message h3 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            color: #06b6d4;
+            font-weight: 600;
+        }
+
+        .completion-message p {
+            color: #0e4a5f;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        #questionInfo {
+            color: #5a8794;
+            font-weight: 500;
+            font-size: 15px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #0e4a5f;
+            font-size: 1.2em;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .quiz-header {
+                padding: 30px 25px;
+            }
+            
+            .quiz-header h1 {
+                font-size: 2em;
+            }
+            
+            .question-container {
+                padding: 30px 25px;
+            }
+            
+            .navigation {
+                padding: 20px 25px;
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .action-buttons {
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            .navigation .btn {
+                width: 100%;
+                max-width: 200px;
+            }
+
+            .answer-textarea {
+                min-height: 150px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="author-header">
+            <div class="author-name">Nuno Sousa e Silva</div>
+        </div>
+        
+        <div class="quiz-header">
+            <h1>Revisões</h1>
+            <p>Transmissão dos Créditos, das Dívidas e da Posição Contratual</p>
+            <p><strong id="totalQuestions">5 questões</strong></p>
+        </div>
+
+        <div class="quiz-content">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+
+            <div id="questionsContainer">
+                <div class="loading">
+                    A carregar questões...
+                </div>
+            </div>
+
+            <div class="results" id="results">
+                <h2>Quiz Concluído</h2>
+                <div class="completion-message">
+                    <h3>Parabéns!</h3>
+                    <p>Completou todas as questões sobre transmissão dos créditos, das dívidas e da posição contratual. Bom trabalho!</p>
+                </div>
+                <button class="btn" onclick="restartQuiz()">Recomeçar Quiz</button>
+            </div>
+
+            <div class="navigation" id="navigation" style="display: none;">
+                <div class="nav-left">
+                    <button class="btn btn-secondary" id="prevBtn" onclick="previousQuestion()" style="display: none;">Anterior</button>
+                </div>
+                <span id="questionInfo">Questão 1 de 5</span>
+                <div class="action-buttons">
+                    <button class="btn show-topics-btn" id="showTopicsBtn" onclick="toggleTopics()">Mostrar Tópicos Orientadores</button>
+                    <button class="btn" id="nextBtn" onclick="nextQuestion()">Próxima</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "Ana vendeu a Nuno o seu crédito sobre Francisca. Francisca, ao ser interpelada por Nuno, defendeu-se invocando um crédito do mesmo montante sobre Ana. Quid iuris?",
+                guidingTopics: "Trata-se de cessão de créditos (arts. 577.º e ss.) que produz efeitos perante Francisca quando notificada ou aceite (art. 583.º). O devedor cedido pode opor ao cessionário os meios de defesa que tinha contra o cedente originário, incluindo a compensação (art. 585.º e 854.º que faz retroagir a compensação à data em que os créditos se tornaram compensáveis). Como Francisca tem um crédito sobre Ana (cedente), pode invocar a compensação contra Nuno (cessionário), desde que o seu crédito já existisse ao tempo em que a cessão lhe foi notificada ou por ela aceite."
+            },
+            {
+                question: "Abel, credor de Júlia, cedeu o crédito a Carolina, tendo aquela tido imediato conhecimento do negócio. Passados dois dias, o mesmo Abel vendeu o mesmo crédito a Teresa, tendo notificado Júlia do facto. Qual das cessões irá prevalecer? E se Júlia já tiver pagado a Carolina?",
+                guidingTopics: "Em caso de dupla cessão, prevalece a cessão que primeiro produzir efeitos em relação ao devedor cedido (art. 584.º), ou seja, a que for primeiro notificada ou aceite (art. 583.º). Se Júlia já pagou a Carolina, o pagamento tem efeito extintivo da obrigação, mesmo que posteriormente seja notificada da cessão a Teresa, pois Carolina era a legítima credora. Teresa apenas terá direito a exigir responsabilidade de Abel pela venda de crédito alheio."
+            },
+            {
+                question: "Joana é credora de Carla, tendo esta constituído uma hipoteca a favor daquela. Joana, para evitar a caducidade do seguro (relativo ao prédio hipotecado) feito por Carla, pagou à Seguradora. Poderá Joana recuperar essa quantia?",
+                guidingTopics: "Joana, como credora hipotecária, tem interesse legítimo em pagar o seguro para evitar a caducidade da apólice e consequente perda de garantia do prédio hipotecado. Aplica-se o regime da sub-rogação (arts. 589.º e ss.), nomeadamente a sub-rogação legal, uma vez que Joana tinha interesse em realizar o pagamento. Joana fica sub-rogada na posição da Seguradora quanto ao prémio pago, mas mantém o seu crédito original garantido pela hipoteca. Pode, portanto, exigir de Carla o reembolso da quantia paga à Seguradora, acrescendo este valor ao crédito garantido pela hipoteca."
+            },
+            {
+                question: "Joana comprou um móvel a Paula, não o pagando de imediato. A mesma Joana vendeu a Marta um automóvel, ficando esta de pagar a dívida de Joana. Paula deu o seu acordo, exonerando Joana. Poderá Marta valer-se da anulação do contrato (por erro vício) feito entre Joana e Paula? Poderá Marta recusar pagar a Paula, invocando que Joana ainda não lhe entregou o automóvel?",
+                guidingTopics: "Trata-se de assunção de dívida liberatória (arts. 595.º/2), pois Paula exonerou expressamente Joana. Marta, como nova devedora, não pode invocar a anulação do contrato base entre Joana e Paula por erro vício, pois segundo o art. 598.º o novo devedor apenas pode opor os meios de defesa que não sejam pessoais ao antigo devedor. O erro vício é um meio de defesa pessoal de Joana. Quanto à segunda questão, Marta também não pode recusar o pagamento invocando o incumprimento de Joana na entrega do automóvel, pois nos termos do art. 597.º as relações entre o antigo e o novo devedor (contrato de cessão/venda do automóvel) não são oponíveis ao credor Paula. Marta deve pagar a Paula."
+            },
+            {
+                question: "A comerciante Alice comprou à comerciante Beatriz certa quantidade de mercadorias, tendo posteriormente, com o acordo de Beatriz, transmitido a sua posição à comerciante Clara. O pagamento de Alice a Beatriz foi garantido por Diana. Beatriz não cumpriu o acordo feito com Alice. Poderá haver resolução do contrato? Responderá Diana pelo incumprimento de Clara? Poderá Clara não pagar a Beatriz, alegando que Alice não cumpriu todas as cláusulas do contrato de cessão?",
+                guidingTopics: "Trata-se de cessão de posição contratual (arts. 424.º e ss.). Clara, como cessionária, sucede integralmente na posição de Alice e pode resolver o contrato com Beatriz pelo incumprimento desta, invocando os mesmos fundamentos que Alice teria. A fiança prestada por Diana extingue-se com a cessão, pois as garantias pessoais não se transmitem automaticamente sem consentimento do fiador - Diana garantiu Alice, não Clara. Diana não responde pelo incumprimento de Clara. Finalmente, Clara não pode recusar o pagamento a Beatriz invocando incumprimento de Alice no contrato de cessão, pois nos termos do art. 426.º o cedido (Beatriz) não garante o cumprimento das obrigações do contrato de cessão - há autonomia entre o contrato cedido e o contrato de cessão."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let userAnswers = [];
+        let quizFinished = false;
+
+        function initQuiz() {
+            userAnswers = new Array(questions.length);
+            
+            document.getElementById('totalQuestions').textContent = `${questions.length} questões`;
+            
+            generateQuestions();
+            showQuestion(0);
+            updateNavigation();
+            updateProgress();
+            
+            document.getElementById('navigation').style.display = 'flex';
+        }
+
+        function generateQuestions() {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = '';
+
+            questions.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question-container';
+                questionDiv.id = `question-${index}`;
+
+                questionDiv.innerHTML = `
+                    <div class="question-header">
+                        <div class="question-number">Caso Prático ${index + 1}</div>
+                        <div class="question-progress">${index + 1} de ${questions.length}</div>
+                    </div>
+                    <div class="question-text">${q.question}</div>
+                    <div class="answer-section">
+                        <label class="answer-label" for="answer-${index}">Sua resposta:</label>
+                        <textarea 
+                            class="answer-textarea" 
+                            id="answer-${index}" 
+                            placeholder="Analise juridicamente a situação, identificando os artigos aplicáveis e fundamentando sua resposta..."
+                            oninput="saveAnswer(${index}, this.value)"
+                        ></textarea>
+                    </div>
+                    <div class="guiding-topics" id="topics-${index}">
+                        <h4>💡 Tópicos Orientadores</h4>
+                        <p>${q.guidingTopics}</p>
+                    </div>
+                `;
+
+                container.appendChild(questionDiv);
+            });
+        }
+
+        function showQuestion(questionIndex) {
+            document.querySelectorAll('.question-container').forEach(q => q.classList.remove('active'));
+            const currentQuestionDiv = document.getElementById(`question-${questionIndex}`);
+            if (currentQuestionDiv) {
+                currentQuestionDiv.classList.add('active');
+            }
+            
+            currentQuestion = questionIndex;
+            updateNavigation();
+            updateProgress();
+
+            document.getElementById('questionInfo').textContent = `Questão ${questionIndex + 1} de ${questions.length}`;
+
+            if (userAnswers[questionIndex] !== undefined) {
+                const textarea = document.getElementById(`answer-${questionIndex}`);
+                if (textarea) {
+                    textarea.value = userAnswers[questionIndex];
+                }
+            }
+
+            const topicsDiv = document.getElementById(`topics-${questionIndex}`);
+            const showTopicsBtn = document.getElementById('showTopicsBtn');
+            if (topicsDiv && topicsDiv.classList.contains('show')) {
+                showTopicsBtn.textContent = 'Ocultar Tópicos Orientadores';
+            } else {
+                showTopicsBtn.textContent = 'Mostrar Tópicos Orientadores';
+            }
+
+            const prevBtn = document.getElementById('prevBtn');
+            if (questionIndex === 0) {
+                prevBtn.style.display = 'none';
+            } else {
+                prevBtn.style.display = 'block';
+            }
+        }
+
+        function saveAnswer(questionIndex, answer) {
+            userAnswers[questionIndex] = answer;
+            updateProgress();
+            updateNavigation();
+        }
+
+        function toggleTopics() {
+            const topicsDiv = document.getElementById(`topics-${currentQuestion}`);
+            const showTopicsBtn = document.getElementById('showTopicsBtn');
+            
+            if (topicsDiv && showTopicsBtn) {
+                if (topicsDiv.classList.contains('show')) {
+                    topicsDiv.classList.remove('show');
+                    showTopicsBtn.textContent = 'Mostrar Tópicos Orientadores';
+                } else {
+                    topicsDiv.classList.add('show');
+                    showTopicsBtn.textContent = 'Ocultar Tópicos Orientadores';
+                }
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                showQuestion(currentQuestion + 1);
+            } else if (allQuestionsAnswered()) {
+                finishQuiz();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                showQuestion(currentQuestion - 1);
+            }
+        }
+
+        function allQuestionsAnswered() {
+            return userAnswers.length === questions.length && 
+                   userAnswers.every(answer => answer !== undefined && answer.trim() !== '');
+        }
+
+        function updateNavigation() {
+            const nextBtn = document.getElementById('nextBtn');
+            
+            if (currentQuestion === questions.length - 1) {
+                if (allQuestionsAnswered()) {
+                    nextBtn.textContent = 'Finalizar Quiz';
+                    nextBtn.disabled = false;
+                } else {
+                    nextBtn.textContent = 'Responder Todas';
+                    nextBtn.disabled = true;
+                }
+            } else {
+                nextBtn.textContent = 'Próxima';
+                nextBtn.disabled = false;
+            }
+        }
+
+        function updateProgress() {
+            const answeredQuestions = userAnswers.filter(answer => 
+                answer !== undefined && answer.trim() !== ''
+            ).length;
+            const progressPercent = (answeredQuestions / questions.length) * 100;
+            document.getElementById('progressBar').style.width = progressPercent + '%';
+        }
+
+        function finishQuiz() {
+            quizFinished = true;
+            
+            document.querySelectorAll('.question-container').forEach(q => q.classList.remove('active'));
+            
+            const resultsDiv = document.getElementById('results');
+            document.getElementById('navigation').style.display = 'none';
+            resultsDiv.classList.add('show');
+
+            resultsDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            userAnswers = new Array(questions.length);
+            quizFinished = false;
+
+            questions.forEach((_, index) => {
+                const textarea = document.getElementById(`answer-${index}`);
+                if (textarea) {
+                    textarea.value = '';
+                }
+                const topicsDiv = document.getElementById(`topics-${index}`);
+                if (topicsDiv) {
+                    topicsDiv.classList.remove('show');
+                }
+            });
+
+            document.getElementById('results').classList.remove('show');
+            document.getElementById('navigation').style.display = 'flex';
+
+            showQuestion(0);
+            updateProgress();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                initQuiz();
+            }, 100);
+        });
+
+        window.addEventListener('load', function() {
+            if (!document.querySelector('.question-container.active')) {
+                initQuiz();
+            }
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (quizFinished) return;
+            
+            switch(e.key) {
+                case 'ArrowRight':
+                    if (!document.activeElement.classList.contains('answer-textarea')) {
+                        e.preventDefault();
+                        nextQuestion();
+                    }
+                    break;
+                case 'ArrowLeft':
+                    if (!document.activeElement.classList.contains('answer-textarea')) {
+                        e.preventDefault();
+                        previousQuestion();
+                    }
+                    break;
+            }
+        });
+
+        setInterval(() => {
+            const currentTextarea = document.getElementById(`answer-${currentQuestion}`);
+            if (currentTextarea && document.activeElement === currentTextarea) {
+                saveAnswer(currentQuestion, currentTextarea.value);
+            }
+        }, 2000);
+    </script>
+    
+    <footer style="text-align: center; padding: 40px 20px 20px; color: #fff; opacity: 0.8; margin-top: 40px;">
+        <p>Desenvolvido por Nuno Sousa e Silva: <a href="https://www.nss.pt" target="_blank" style="color: #fff; text-decoration: underline;">www.nss.pt</a></p>
+    </footer>
+</body>
+</html>
