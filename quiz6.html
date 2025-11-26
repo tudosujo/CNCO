@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz - Não Cumprimento das Obrigações</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: #1e1b4b;
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 50%, #4338ca 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.4) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(79, 70, 229, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(67, 56, 202, 0.4) 0%, transparent 50%);
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .author-header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: fadeInDown 0.8s ease-out;
+            position: relative;
+        }
+
+        .author-name {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.1) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 15px 30px;
+            color: white;
+            font-size: 1.1em;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            display: inline-block;
+            box-shadow: 0 20px 25px -5px rgba(79, 70, 229, 0.2), 0 10px 10px -5px rgba(79, 70, 229, 0.1);
+        }
+
+        .back-to-menu {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 100%);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 10px 20px;
+            color: white;
+            font-size: 0.9em;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.1);
+        }
+
+        .back-to-menu:hover {
+            transform: translateY(-50%) translateX(-5px);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.2) 100%);
+            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.2);
+        }
+
+        .quiz-header {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            padding: 40px;
+            border-radius: 24px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 25px 50px -12px rgba(79, 70, 229, 0.3);
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        .quiz-header h1 {
+            font-size: 2.5em;
+            color: #1e1b4b;
+            margin-bottom: 15px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .quiz-header p {
+            font-size: 1.2em;
+            color: #312e81;
+            font-weight: 500;
+        }
+
+        .quiz-stats {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            font-weight: 600;
+            color: #312e81;
+        }
+
+        .quiz-content {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(79, 70, 229, 0.3);
+            animation: fadeInUp 0.8s ease-out 0.4s both;
+        }
+
+        .progress-section {
+            padding: 25px 40px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #6366f1 0%, #4f46e5 100%);
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+
+        .progress-text {
+            margin-top: 10px;
+            text-align: center;
+            font-size: 0.9em;
+            color: #312e81;
+            font-weight: 500;
+        }
+
+        #questionsContainer {
+            padding: 0;
+        }
+
+        .question-container {
+            display: none;
+            padding: 40px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .question-container.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .question-number {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.95em;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .question-progress {
+            color: #4338ca;
+            font-weight: 500;
+            font-size: 0.9em;
+        }
+
+        .question-text {
+            font-size: 1.15em;
+            line-height: 1.8;
+            color: #1e1b4b;
+            margin-bottom: 30px;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.1);
+        }
+
+        .answer-section {
+            margin-bottom: 30px;
+        }
+
+        .answer-label {
+            display: block;
+            font-weight: 600;
+            color: #312e81;
+            margin-bottom: 12px;
+            font-size: 1.05em;
+        }
+
+        .answer-textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            resize: vertical;
+            background: rgba(255, 255, 255, 0.9);
+            color: #1e1b4b;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.1);
+        }
+
+        .answer-textarea:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1), 0 10px 15px -3px rgba(79, 70, 229, 0.2);
+        }
+
+        .guiding-topics {
+            display: none;
+            margin-top: 25px;
+            padding: 25px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(79, 70, 229, 0.1) 100%);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-left: 4px solid #6366f1;
+            border-radius: 16px;
+            animation: slideDown 0.3s ease-out;
+            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.2);
+        }
+
+        .guiding-topics.show {
+            display: block;
+        }
+
+        .guiding-topics h4 {
+            color: #4338ca;
+            margin-bottom: 12px;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        .guiding-topics p {
+            color: #312e81;
+            line-height: 1.7;
+            font-size: 0.98em;
+        }
+
+        .navigation {
+            display: none;
+            padding: 25px 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.2) 100%);
+            color: #312e81;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.3) 100%);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .show-topics-btn {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .show-topics-btn:hover {
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+        }
+
+        .results {
+            display: none;
+            text-align: center;
+            padding: 50px 40px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        .results h2 {
+            font-size: 2.2em;
+            margin-bottom: 25px;
+            color: #1e1b4b;
+            font-weight: 700;
+        }
+
+        .completion-message {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(79, 70, 229, 0.05) 100%);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-left: 4px solid #6366f1;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 25px 0;
+            box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.2), 0 10px 10px -5px rgba(99, 102, 241, 0.1);
+        }
+
+        .completion-message h3 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            color: #6366f1;
+            font-weight: 600;
+        }
+
+        .completion-message p {
+            color: #312e81;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        #questionInfo {
+            color: #4338ca;
+            font-weight: 500;
+            font-size: 15px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #1e1b4b;
+            font-size: 1.2em;
+        }
+
+        .error {
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.1) 0%, rgba(185, 28, 28, 0.05) 100%);
+            border: 1px solid rgba(220, 38, 38, 0.2);
+            border-left: 4px solid #dc2626;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #b91c1c;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .quiz-header {
+                padding: 30px 25px;
+            }
+            
+            .quiz-header h1 {
+                font-size: 2em;
+            }
+            
+            .question-container {
+                padding: 30px 25px;
+            }
+            
+            .navigation {
+                padding: 20px 25px;
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .action-buttons {
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            .navigation .btn {
+                width: 100%;
+                max-width: 200px;
+            }
+
+            .answer-textarea {
+                min-height: 150px;
+                font-size: 14px;
+            }
+
+            .back-to-menu {
+                position: static;
+                transform: none;
+                margin-bottom: 15px;
+                display: inline-block;
+            }
+
+            .back-to-menu:hover {
+                transform: translateX(-5px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="author-header">
+            <a href="/index.html" class="back-to-menu">← Voltar ao Menu</a>
+            <div class="author-name">Nuno Sousa e Silva</div>
+        </div>
+
+        <div class="quiz-header">
+            <h1>Não Cumprimento das Obrigações</h1>
+            <p>Revisões 6ª-7ª semana</p>
+            <div class="quiz-stats">
+                <span class="stat-item" id="totalQuestions">17 questões</span>
+                <span class="stat-item">~40 min</span>
+            </div>
+        </div>
+
+        <div class="quiz-content">
+            <div class="progress-section">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+                <div class="progress-text" id="progressText">0% completo</div>
+            </div>
+
+            <div id="questionsContainer"></div>
+
+            <div class="navigation" id="navigation">
+                <button class="btn btn-secondary" id="prevBtn" onclick="previousQuestion()">← Anterior</button>
+                <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap; justify-content: center;">
+                    <span id="questionInfo">Questão 1 de 15</span>
+                    <div class="action-buttons">
+                        <button class="btn show-topics-btn" id="showTopicsBtn" onclick="toggleTopics()">Mostrar Elementos de Resposta</button>
+                        <button class="btn" id="nextBtn" onclick="nextQuestion()">Próxima</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Questions data based on non-performance of obligations
+        const questions = [
+            {
+                question: "António celebrou um contrato com Beatriz para a entrega de um violino raro e único no mundo. Duas semanas antes da data de entrega, o violino é destruído num incêndio causado por um raio. António não consegue cumprir a obrigação. Beatriz exige uma indemnização por incumprimento. <em>Quid juris?</em>",
+                guidingTopics: "Art. 790.º - impossibilidade superveniente não imputável ao devedor (força maior). O raio constitui caso fortuito/força maior (evento exterior, imprevisível e irresistível). Extinção da obrigação sem direito a indemnização. O risco corre por conta do credor (art. 795.º/1). Beatriz não tem direito a indemnização."
+            },
+            {
+                question: "Carlos deve entregar a Diana 100 kg de batatas de determinada variedade. Devido a uma praga que afecta toda a região, a colheita dessa variedade fica totalmente destruída, mas é possível adquirir batatas de outra região a um preço 10 vezes superior. Carlos recusa-se a cumprir, invocando impossibilidade. Diana sustenta que há apenas maior onerosidade. Quem tem razão?",
+                guidingTopics: "Distinção entre impossibilidade absoluta e impossibilidade relativa (doutrina do limite do sacrifício). Em Portugal, a jurisprudência maioritária nega a doutrina do limite do sacrifício - o aumento de custo, mesmo significativo, não configura impossibilidade. Alternativas a considerar: boa fé (art. 762.º), abuso do direito (art. 334.º), alteração de circunstâncias (art. 437.º). Carlos continua obrigado a cumprir, mas pode invocar alteração anormal de circunstâncias."
+            },
+            {
+                question: "Eduardo contratou com Francisca a prestação de um concerto de piano para o seu casamento no dia 15 de junho. No dia 10 de junho, Francisca sofre um acidente que lhe causa fractura nos dois braços, ficando impossibilitada de tocar piano durante 3 meses. Eduardo exige o cumprimento por outro pianista. Francisca está obrigada a providenciar substituto?",
+                guidingTopics: "Art. 791.º - impossibilidade subjectiva de prestação infungível. O concerto é uma prestação infungível (intuitu personae), apenas Francisca pode cumprir. Equiparação à impossibilidade objectiva. Extinção da obrigação sem responsabilidade, por impossibilidade temporária que eliminou o interesse do credor (art. 792.º/2) dado o prazo essencial objectivo (casamento numa data específica). Francisca não está obrigada a arranjar substituto."
+            },
+            {
+                question: "Gabriel vendeu a Helena um quadro de um pintor famoso por 5.000€. Antes da entrega, o quadro é furtado da casa de Gabriel sem culpa deste. A seguradora de Gabriel paga-lhe uma indemnização de 7.000€ pela perda do quadro. Helena exige que Gabriel lhe entregue os 7.000€ ou, pelo menos, os 5.000€ acordados. Tem Helena esse direito?",
+                guidingTopics: "Art. 794.º - commodum de representação. Helena tem direito ao commodum, isto é, às vantagens que Gabriel obteve com a impossibilidade (indemnização do seguro). Pode substituir-se ao devedor na exigência da indemnização ou ficar com o seu produto. Neste caso, Helena tem direito aos 7.000€ da indemnização do seguro, podendo optar por receber esse valor ou exigir a restituição do preço pago (art. 795.º/1)."
+            },
+            {
+                question: "Inês celebrou um contrato com João para a construção de uma piscina no seu jardim. Após o início dos trabalhos, o Município proíbe a construção de piscinas naquela zona por razões ambientais (decisão administrativa superveniente). João não consegue concluir a obra. Inês pretende ser indemnizada. João deve indemnizar?",
+                guidingTopics: "Impossibilidade superveniente por factum principis (acto de autoridade pública). Configura impossibilidade não imputável ao devedor (art. 790.º). Extinção da obrigação de construir a piscina. Impossibilidade parcial (art. 793.º) - João exonera-se prestando o que for possível, com redução da contraprestação. Se Inês não tiver interesse no cumprimento parcial, pode resolver o contrato. João não deve indemnizar pelo preço global, mas poderá ser obrigado a pagar as despesas nos termos do art. 1227.º ou 468.º"
+            },
+            {
+                question: "Laura contratou com Miguel a pintura de um retrato. Antes de Miguel começar a pintar, Laura adoeceu gravemente e faleceu. Os herdeiros de Laura pretendem que Miguel pinte o retrato de qualquer forma, com base numa fotografia. Miguel recusa, alegando que a prestação se tornou impossível. Tem Miguel razão?",
+                guidingTopics: "Poder-se-á discutir a frustração do fim da prestação - o interesse do credor deixou de poder ser satisfeito (pela morte de Laura). Aplicação do art. 1227.º por analogia (posição maioritária - Baptista Machado, Menezes Leitão, Brandão Proença). A obrigação extingue-se, mas Miguel teria direito a ser indemnizado pelas despesas de preparação (mas não pelos lucros cessantes). Miguel tem razão - não está obrigado a pintar."
+            },
+            {
+                question: "Nuno vendeu a Olívia um automóvel por 20.000€, com transferência imediata da propriedade, mas a entrega do veículo ficou acordada para 15 dias depois. No dia anterior à entrega, o carro é destruído por uma inundação enquanto estava na garagem de Nuno, sem culpa de ninguém. Nuno considera que não tem que entregar nada mas que Olívia continua obrigada a pagar. Olívia discorda. Quem tem razão?",
+                guidingTopics: "Art. 796.º/1 - risco da prestação em contratos com eficácia real. Como houve transferência de propriedade (princípio da consensualidade, art. 408.º), o risco corre por conta do adquirente (Olívia) desde a celebração do contrato. No entanto, art. 796.º/2 - como a coisa continuou em poder de Nuno, o risco corre por conta dele. Nuno não pode exigir o preço e deve restituir o que recebeu. Olívia tem razão."
+            },
+            {
+                question: "Paula comprou 500 kg de laranjas a Ricardo (obrigação genérica). Ricardo já tinha separado e embalado as laranjas para Paula quando estas foram destruídas por um incêndio fortuito no armazém. Paula recusa pagar, alegando que Ricardo ainda não tinha cumprido. Ricardo sustenta que Paula deve pagar porque as laranjas já estavam concentradas. Quem tem razão?",
+                guidingTopics: "Art. 408.º/2 e 796.º - nas obrigações genéricas, o risco transfere-se com a concentração. A separação e embalagem das laranjas específicas para Paula não configura concentração. Paula tem razão."
+            },
+            {
+                question: "Sofia vendeu a Tiago um quadro por 3.000€, ficando acordado que Sofia manteria o quadro em sua casa durante um mês para uma exposição (termo constituído a favor da vendedora). Durante esse mês, o quadro é destruído por um incêndio fortuito. Tiago exige a devolução do preço já pago. Sofia recusa, alegando que o risco já era de Tiago. Quem tem razão?",
+                guidingTopics: "Art. 796.º/2 - quando a coisa continua em poder do alienante por efeito de termo constituído a seu favor, o risco corre por conta do alienante. Apesar da transferência de propriedade, Sofia assume o risco enquanto o quadro está em seu poder para a exposição. Tiago tem razão."
+            },
+            {
+                question: "Vasco encomendou a Xavier o envio de 100 caixas de vinho do Porto. Xavier entregou as caixas à transportadora, que emitiu recibo de entrega. Durante o transporte, o camião sofreu um acidente e as caixas ficaram destruídas sem culpa da transportadora. Vasco recusa pagar, alegando que nunca recebeu o vinho. Xavier exige o pagamento. Quem tem razão?",
+                guidingTopics: "Art. 797.º - nas obrigações de envio, o risco transfere-se com a entrega ao transportador. Xavier cumpriu a sua obrigação ao entregar o vinho à transportadora. A partir desse momento, o risco de perecimento transferiu-se para Vasco (comprador). Vasco deve pagar o preço acordado, mesmo não tendo recebido o vinho. Xavier tem razão."
+            },
+            {
+                question: "Ana deve a Bruno a reparação de um relógio antigo. No dia marcado para a entrega, Ana apresenta-se na loja de Bruno, mas este não está presente nem deixou qualquer colaborador para receber o relógio. Ana volta para casa com o relógio e, no caminho, o relógio é roubado. Bruno exige que Ana lhe entregue outro relógio equivalente ou o indemize. <em>Quid iuris?</em>",
+                guidingTopics: "Arts. 813.º a 816.º - mora do credor. Bruno estava obrigado a colaborar no cumprimento (receber o relógio) e não o fez sem motivo justificado. Constituição em mora do credor. Efeitos: (1) inversão do risco - o risco passa para o credor (art. 815.º/1), (2) diminuição da diligência exigida - Ana só responde por dolo/culpa grave (art. 814.º/1), (3) direito a indemnização das despesas acrescidas (art. 816.º). Ana não tem que entregar outro relógio nem indemnizar Bruno."
+            },
+            {
+                question: "Carlos marcou hora com David, barbeiro, para cortar o cabelo às 15h. David prepara os materiais e fica à espera de Carlos, que não comparece e não avisa. David fica sem trabalhar durante essa hora, perdendo potenciais clientes. David pretende cobrar a Carlos não só o valor do corte de cabelo como também os lucros cessantes dessa hora perdida. Tem David direito a essa indemnização integral?",
+                guidingTopics: "Mora do credor (art. 813.º ss.) - Carlos tinha o ónus de comparecer para permitir o cumprimento e não o fez. Art. 816.º - David tem direito à indemnização das despesas acrescidas com o cumprimento, mas NÃO aos lucros cessantes. Trata-se de indemnização por facto lícito/pelo sacrifício (não há direito subjetivo do devedor a cumprir). David tem direito ao preço do corte mas não aos lucros cessantes da hora perdida."
+            },
+            {
+                question: "Eva deve entregar a Fernando uma máquina industrial. Eva apresenta-se no dia acordado com a máquina, mas Fernando recusa recebê-la porque a máquina apresenta pequenos defeitos que não a tornam adequada ao uso pretendido. Eva alega que Fernando está em mora de credor. Tem Eva razão?",
+                guidingTopics: "Art. 813.º - mora do credor pressupõe recusa SEM motivo justificado. O cumprimento defeituoso constitui motivo justificado para recusar a prestação (posição maioritária). Fernando tem o direito de recusar prestação não conforme ao contrato. Não há mora do credor. Eva não tem razão - terá que apresentar máquina conforme para que haja mora de Fernando em recusar."
+            },
+            {
+                question: "Gustavo celebrou contrato com Helena para reparação do seu computador. No dia da entrega, Helena está hospitalizada por doença súbita grave e não pode receber o computador. Gustavo considera que Helena está em mora de credor e que o risco passou para ela. Helena discorda. Há mora do credor? Qual o regime aplicável?",
+                guidingTopics: "Discussão doutrinária: posição maioritária exige que o motivo justificado esteja previsto na lei (cumprimento defeituoso/parcial). Hospitalização por doença grave não seria motivo justificado legalmente previsto - haveria mora. Posição de Baptista Machado (minoritária): há motivo justificado nas situações de impossibilidade por razão ponderosa (doença grave, acidente). Nesta perspectiva, aplica-se art. 814.º/2 e 816.º (isenção de juros, despesas) mas não art. 815.º (inversão do risco). Posição maioritária: há mora; posição Baptista Machado: não há mora mas regime semelhante."
+            },
+            {
+                question: "Irene contratou com João a construção de um muro no seu terreno. Antes de João começar os trabalhos, Irene constrói ela própria o muro, impossibilitando João de cumprir. João pretende ser indemnizado pelo lucro que teria obtido com o trabalho. Irene reconhece que causou a impossibilidade mas alega que só deve pagar as despesas de preparação, não os lucros cessantes. Quem tem razão?",
+                guidingTopics: "Art. 795.º/2 - impossibilidade imputável ao credor. Discute-se o que significa 'imputável': (1) orientação subjectiva (Antunes Varela) - comportamento culposo; (2) orientação objectiva (Rita Lynce de Faria) - esfera de risco; (3) orientação de imputação qualificada subjectiva (Baptista Machado, Brandão Proença) - escolha livre e voluntária do credor. Irene actuou livre e voluntariamente impossibilitando o cumprimento. Consequências: manutenção da contraprestação - Irene deve pagar a João o preço."
+            },
+            {
+                question: "Luís levou o seu relógio antigo à relojoaria de Marta para reparação. Marta reparou o relógio, gastando 300€ em peças e mão-de-obra. Quando Luís foi buscar o relógio, recusou-se a pagar, alegando que o valor era excessivo. Marta recusa entregar o relógio enquanto Luís não pagar. Luís ameaça chamar a polícia, alegando que Marta está a reter indevidamente a sua propriedade. Pode Marta legitimamente recusar a entrega do relógio?",
+                guidingTopics: "Art. 754.º - direito de retenção como meio de autotutela com fim coercivo/compulsivo. O credor pode recusar a entrega de coisa devida até ao cumprimento de despesas feitas por causa dela. Marta tem direito de retenção sobre o relógio até ser paga pela reparação. Não há nexo sinalagmático (ao contrário da exceção de não cumprimento), mas há conexão entre o crédito e a coisa. Pode ser afastado mediante prestação de garantias [art. 756.º, al. d)]. Marta pode legitimamente recusar entregar o relógio."
+            },
+            {
+                question: "Norberto celebrou um contrato de compra e venda com Olga: Norberto vendeu-lhe um computador por 1.200€, com entrega e pagamento simultâneos no dia 20 de maio. No dia acordado, Olga apresenta-se para receber o computador mas recusa-se a pagar o preço, alegando dificuldades financeiras temporárias e prometendo pagar na semana seguinte. Norberto recusa entregar o computador sem receber o pagamento. Olga alega que Norberto está em incumprimento. <em>Quid iuris?</em>",
+                guidingTopics: "Arts. 428.º a 431.º - exceção de não cumprimento (exceptio non adimpleti contractus). Trata-se de exceção material dilatória que pressupõe um contrato com sinalagma. No caso de obrigações puras (sem prazos diferentes), a exceção é sempre invocável (art. 428.º/2). Norberto pode legitimamente recusar a entrega do computador enquanto Olga não pagar o preço. Requisitos: sucessão (Norberto não é o primeiro a incumprir), causalidade (visa compelir Olga a cumprir) e proporcionalidade. A exceção não tem fim sancionatório. Norberto não está em incumprimento - está a exercer legitimamente a exceção de não cumprimento."
+            }
+        ];
+
+        // Global variables
+        let currentQuestion = 0;
+        let userAnswers = [];
+        let quizFinished = false;
+
+        function initQuiz() {
+            userAnswers = new Array(questions.length);
+            
+            document.getElementById('totalQuestions').textContent = `${questions.length} questões`;
+            
+            generateQuestions();
+            showQuestion(0);
+            updateNavigation();
+            updateProgress();
+            
+            document.getElementById('navigation').style.display = 'flex';
+        }
+
+        function generateQuestions() {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = '';
+
+            questions.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question-container';
+                questionDiv.id = `question-${index}`;
+
+                questionDiv.innerHTML = `
+                    <div class="question-header">
+                        <div class="question-number">Questão ${index + 1}</div>
+                        <div class="question-progress">${index + 1} de ${questions.length}</div>
+                    </div>
+                    <div class="question-text">${q.question.replace(/\n/g, '<br>')}</div>
+                    <div class="answer-section">
+                        <label class="answer-label" for="answer-${index}">Sua resposta:</label>
+                        <textarea 
+                            class="answer-textarea" 
+                            id="answer-${index}" 
+                            placeholder="Analise juridicamente a situação, identificando os artigos aplicáveis e fundamentando sua resposta..."
+                            oninput="saveAnswer(${index}, this.value)"
+                        ></textarea>
+                    </div>
+                    <div class="guiding-topics" id="topics-${index}">
+                        <h4>Elementos de Resposta:</h4>
+                        <p>${q.guidingTopics}</p>
+                    </div>
+                `;
+
+                container.appendChild(questionDiv);
+            });
+        }
+
+        function showQuestion(questionIndex) {
+            document.querySelectorAll('.question-container').forEach(q => q.classList.remove('active'));
+            const currentQuestionDiv = document.getElementById(`question-${questionIndex}`);
+            if (currentQuestionDiv) {
+                currentQuestionDiv.classList.add('active');
+            }
+            
+            currentQuestion = questionIndex;
+            updateNavigation();
+            updateProgress();
+
+            document.getElementById('questionInfo').textContent = `Questão ${questionIndex + 1} de ${questions.length}`;
+
+            // Restore previous answer if exists
+            if (userAnswers[questionIndex] !== undefined) {
+                const textarea = document.getElementById(`answer-${questionIndex}`);
+                if (textarea) {
+                    textarea.value = userAnswers[questionIndex];
+                }
+            }
+
+            // Update the show topics button text
+            const topicsDiv = document.getElementById(`topics-${questionIndex}`);
+            const showTopicsBtn = document.getElementById('showTopicsBtn');
+            if (topicsDiv.classList.contains('show')) {
+                showTopicsBtn.textContent = 'Ocultar Elementos de Resposta';
+            } else {
+                showTopicsBtn.textContent = 'Mostrar Elementos de Resposta';
+            }
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function saveAnswer(questionIndex, answer) {
+            userAnswers[questionIndex] = answer;
+            updateProgress();
+            updateNavigation();
+        }
+
+        function toggleTopics() {
+            const topicsDiv = document.getElementById(`topics-${currentQuestion}`);
+            const showTopicsBtn = document.getElementById('showTopicsBtn');
+            
+            if (topicsDiv && showTopicsBtn) {
+                if (topicsDiv.classList.contains('show')) {
+                    topicsDiv.classList.remove('show');
+                    showTopicsBtn.textContent = 'Mostrar Elementos de Resposta';
+                } else {
+                    topicsDiv.classList.add('show');
+                    showTopicsBtn.textContent = 'Ocultar Elementos de Resposta';
+                }
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                showQuestion(currentQuestion + 1);
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                showQuestion(currentQuestion - 1);
+            }
+        }
+
+        function updateNavigation() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            if (prevBtn) {
+                prevBtn.disabled = currentQuestion === 0;
+            }
+            
+            if (nextBtn) {
+                if (currentQuestion === questions.length - 1) {
+                    nextBtn.textContent = 'Concluir';
+                    nextBtn.onclick = finishQuiz;
+                } else {
+                    nextBtn.textContent = 'Próxima';
+                    nextBtn.onclick = nextQuestion;
+                }
+            }
+        }
+
+        function updateProgress() {
+            const answeredCount = userAnswers.filter(a => a && a.trim().length > 0).length;
+            const percentage = (answeredCount / questions.length) * 100;
+            
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            
+            if (progressFill) {
+                progressFill.style.width = `${percentage}%`;
+            }
+            
+            if (progressText) {
+                progressText.textContent = `${Math.round(percentage)}% completo (${answeredCount}/${questions.length} questões respondidas)`;
+            }
+        }
+
+        function finishQuiz() {
+            const answeredCount = userAnswers.filter(a => a && a.trim().length > 0).length;
+            
+            if (answeredCount < questions.length) {
+                const unanswered = questions.length - answeredCount;
+                if (!confirm(`Você ainda tem ${unanswered} questão(ões) sem resposta. Deseja realmente concluir o quiz?`)) {
+                    return;
+                }
+            }
+            
+            quizFinished = true;
+            
+            // Show completion message
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = `
+                <div class="results show">
+                    <h2>Quiz Concluído!</h2>
+                    <div class="completion-message">
+                        <h3>Parabéns!</h3>
+                        <p>Você completou o quiz sobre Não Cumprimento das Obrigações.</p>
+                        <p>Respondeu a ${answeredCount} de ${questions.length} questões.</p>
+                        <p style="margin-top: 20px;">Este quiz abrangeu temas essenciais sobre impossibilidade superveniente, mora do credor, risco da prestação, commodum de representação, regimes especiais de distribuição de risco, direito de retenção e exceção de não cumprimento.</p>
+                        <p style="margin-top: 20px; font-weight: 600;">Reveja as suas respostas e compare com os elementos de resposta fornecidos para consolidar o seu conhecimento.</p>
+                    </div>
+                    <div style="margin-top: 30px; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                        <button class="btn" onclick="reviewAnswers()">Rever Respostas</button>
+                        <button class="btn btn-secondary" onclick="location.href='/index.html'">Voltar ao Menu</button>
+                        <button class="btn btn-secondary" onclick="location.reload()">Recomeçar Quiz</button>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('navigation').style.display = 'none';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function reviewAnswers() {
+            quizFinished = false;
+            generateQuestions();
+            
+            // Show all topics by default in review mode
+            questions.forEach((q, index) => {
+                const topicsDiv = document.getElementById(`topics-${index}`);
+                if (topicsDiv) {
+                    topicsDiv.classList.add('show');
+                }
+                
+                // Restore answers
+                if (userAnswers[index]) {
+                    const textarea = document.getElementById(`answer-${index}`);
+                    if (textarea) {
+                        textarea.value = userAnswers[index];
+                    }
+                }
+            });
+            
+            showQuestion(0);
+            document.getElementById('navigation').style.display = 'flex';
+        }
+
+        // Initialize quiz when page loads
+        window.onload = initQuiz;
+    </script>
+</body>
+</html>
