@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz - Garantias das Obrigações</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: #134e4a;
+            background: linear-gradient(135deg, #14b8a6 0%, #0d9488 50%, #0f766e 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(20, 184, 166, 0.4) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(13, 148, 136, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(15, 118, 110, 0.4) 0%, transparent 50%);
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .author-header {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: fadeInDown 0.8s ease-out;
+            position: relative;
+        }
+
+        .author-name {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.1) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 15px 30px;
+            color: white;
+            font-size: 1.1em;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            display: inline-block;
+            box-shadow: 0 20px 25px -5px rgba(15, 118, 110, 0.2), 0 10px 10px -5px rgba(15, 118, 110, 0.1);
+        }
+
+        .back-to-menu {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 100%);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 10px 20px;
+            color: white;
+            font-size: 0.9em;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(15, 118, 110, 0.1);
+        }
+
+        .back-to-menu:hover {
+            transform: translateY(-50%) translateX(-5px);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.2) 100%);
+            box-shadow: 0 8px 25px rgba(15, 118, 110, 0.2);
+        }
+
+        .quiz-header {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            padding: 40px;
+            border-radius: 24px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 25px 50px -12px rgba(15, 118, 110, 0.3);
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        .quiz-header h1 {
+            background: linear-gradient(135deg, #0f766e, #115e59);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+            font-size: 2.5em;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .quiz-header p {
+            color: #0f766e;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .quiz-header p:first-of-type {
+            color: #134e4a;
+            font-weight: 600;
+            font-size: 1.2em;
+        }
+
+        .quiz-content {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(15, 118, 110, 0.3);
+            animation: fadeInUp 0.8s ease-out 0.4s both;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #14b8a6 0%, #0d9488 50%, #0f766e 100%);
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background-image: linear-gradient(
+                -45deg,
+                rgba(255, 255, 255, .2) 25%,
+                transparent 25%,
+                transparent 50%,
+                rgba(255, 255, 255, .2) 50%,
+                rgba(255, 255, 255, .2) 75%,
+                transparent 75%,
+                transparent
+            );
+            background-size: 50px 50px;
+            animation: move 2s linear infinite;
+        }
+
+        @keyframes move {
+            0% { background-position: 0 0; }
+            100% { background-position: 50px 50px; }
+        }
+
+        .question-container {
+            padding: 40px;
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .question-container.active {
+            display: block;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .question-number {
+            background: linear-gradient(135deg, #14b8a6 0%, #0d9488 50%, #0f766e 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 4px 15px rgba(20, 184, 166, 0.3);
+        }
+
+        .question-progress {
+            color: #115e59;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .question-text {
+            color: #134e4a;
+            font-size: 1.2em;
+            margin-bottom: 25px;
+            line-height: 1.8;
+            font-weight: 500;
+        }
+
+        .answer-section {
+            margin-bottom: 25px;
+        }
+
+        .answer-label {
+            display: block;
+            color: #115e59;
+            font-weight: 600;
+            margin-bottom: 12px;
+            font-size: 0.95em;
+        }
+
+        .answer-textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            border: 2px solid rgba(20, 184, 166, 0.3);
+            border-radius: 12px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95em;
+            line-height: 1.6;
+            resize: vertical;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+            color: #134e4a;
+        }
+
+        .answer-textarea:focus {
+            outline: none;
+            border-color: #14b8a6;
+            box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
+            background: white;
+        }
+
+        .answer-textarea::placeholder {
+            color: #14b8a6;
+            font-style: italic;
+            font-weight: 500;
+            opacity: 0.7;
+        }
+
+        .guiding-topics {
+            background: linear-gradient(135deg, rgba(20, 184, 166, 0.1) 0%, rgba(13, 148, 136, 0.05) 100%);
+            border: 1px solid rgba(20, 184, 166, 0.2);
+            border-left: 4px solid #14b8a6;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 25px;
+            display: none;
+            animation: slideDown 0.4s ease-out;
+        }
+
+        .guiding-topics.show {
+            display: block;
+        }
+
+        .guiding-topics h4 {
+            color: #115e59;
+            margin-bottom: 12px;
+            font-size: 1em;
+            font-weight: 600;
+        }
+
+        .guiding-topics p {
+            color: #0f766e;
+            line-height: 1.7;
+            font-size: 0.95em;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            padding: 30px 40px;
+            background: rgba(255, 255, 255, 0.05);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-btn {
+            background: linear-gradient(135deg, #14b8a6 0%, #0d9488 50%, #0f766e 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(20, 184, 166, 0.3);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(20, 184, 166, 0.4);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .show-topics-btn {
+            background: linear-gradient(135deg, rgba(20, 184, 166, 0.2) 0%, rgba(13, 148, 136, 0.15) 100%);
+            color: #115e59;
+            border: 2px solid rgba(20, 184, 166, 0.3);
+            padding: 10px 25px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .show-topics-btn:hover {
+            background: linear-gradient(135deg, rgba(20, 184, 166, 0.3) 0%, rgba(13, 148, 136, 0.25) 100%);
+            border-color: #14b8a6;
+        }
+
+        .question-info {
+            color: #115e59;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .results {
+            padding: 40px;
+            text-align: center;
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        .results h2 {
+            color: #134e4a;
+            font-size: 2em;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .results p {
+            color: #0f766e;
+            font-size: 1.1em;
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+
+        .restart-btn {
+            background: linear-gradient(135deg, #14b8a6 0%, #0d9488 50%, #0f766e 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 25px rgba(20, 184, 166, 0.3);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .restart-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(20, 184, 166, 0.4);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .quiz-header {
+                padding: 30px 25px;
+            }
+
+            .quiz-header h1 {
+                font-size: 2em;
+            }
+
+            .question-container {
+                padding: 25px;
+            }
+
+            .navigation {
+                padding: 20px 25px;
+                flex-direction: column;
+            }
+
+            .nav-btn {
+                width: 100%;
+            }
+
+            .back-to-menu {
+                position: static;
+                transform: none;
+                margin-bottom: 15px;
+                display: inline-block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="author-header">
+            <a href="/index.html" class="back-to-menu">← Voltar ao Menu</a>
+            <div class="author-name">Nuno Sousa e Silva</div>
+        </div>
+        
+        <div class="quiz-header">
+            <h1>Revisões</h1>
+            <p>Garantias das Obrigações</p>
+            <p><strong id="totalQuestions">6 questões</strong></p>
+        </div>
+
+        <div class="quiz-content">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+
+            <div id="questionsContainer">
+                <div class="question-container">
+                    <p style="text-align: center; padding: 60px 20px; color: #115e59; font-size: 1.1em;">
+                        A carregar questões...
+                    </p>
+                </div>
+            </div>
+
+            <div class="results" id="results">
+                <h2>Quiz Concluído! 🎉</h2>
+                <p>Completou todas as questões sobre garantias das obrigações. As suas respostas foram guardadas. Analise os tópicos de resposta para verificar a conformidade com a doutrina vigente.</p>
+                <button class="restart-btn" onclick="restartQuiz()">Recomeçar Quiz</button>
+            </div>
+
+            <div class="navigation" id="navigation" style="display: none;">
+                <button class="nav-btn" id="prevBtn" onclick="previousQuestion()">← Anterior</button>
+                <div style="display: flex; align-items: center; gap: 15px; flex: 1; justify-content: center;">
+                    <span class="question-info" id="questionInfo">Questão 1 de 6</span>
+                    <button class="show-topics-btn" id="showTopicsBtn" onclick="toggleTopics()">Mostrar Elementos de Resposta</button>
+                </div>
+                <button class="nav-btn" id="nextBtn" onclick="nextQuestion()">Próxima →</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "A é credor de B por €50.000. B tem um património de €100.000 mas nunca cobrou um crédito de €80.000 que C lhe deve há anos, apesar de C ter capacidade para pagar. A está preocupado porque B não tem liquidez para lhe pagar. O que poderá fazer?",
+                guidingTopics: "Acção sub-rogatória (Arts. 606.º a 609.º). A pode exercer, em nome de B, o direito de crédito que B tem sobre C. Pressupostos: (1) a acção tem que ser essencial à satisfação do direito do credor (debate sobre se isto significa insolvência matemática segundo Antunes Varela, ou critério mais flexível de normalidade segundo Menezes Cordeiro); (2) os direitos já têm que pertencer ao devedor; (3) não se podem tratar de direitos pessoais (Art. 606.º/1). Exercida a sub-rogação, os seus efeitos aproveitam a todos os credores (Art. 609.º)."
+            },
+            {
+                question: "A é credor de B por €200.000 desde Janeiro de 2023. Em Março de 2024, B doou gratuitamente ao seu filho C um apartamento no valor de €300.000, sendo que B tinha outros bens no valor de €50.000. A quer reagir. Quid iuris?",
+                guidingTopics: "Impugnação pauliana (Arts. 610.º a 616.º). Pressupostos gerais cumulativos (Art. 610.º): (1) anterioridade do crédito (verificado: crédito de Jan/2023, doação em Mar/2024); (2) impossibilidade para o credor de obter satisfação integral do seu crédito (B tem €50.000 mas deve €200.000). Para actos gratuitos (Art. 612.º/1 in fine): não se exige mais nada, a impugnação pauliana é possível ainda que as partes tenham agido de boa fé. Portanto, sim, a doação pode ser impugnada mesmo com boa fé de ambos. Debate sobre o significado de 'impossibilidade': insolvência (Menezes Cordeiro) vs. impossibilidade prática (Antunes Varela e Brandão Proença)."
+            },
+            {
+                question: "A é credor de B por €100.000. B vendeu a sua casa a C por €150.000 (valor de mercado). Tanto B como C sabiam que esta venda prejudicaria A, pois B ficaria sem bens para pagar a dívida. A quer impugnar a venda. É possível? Quais os requisitos específicos para actos onerosos?",
+                guidingTopics: "Impugnação pauliana de actos onerosos (Art. 612.º). Requisitos gerais (Art. 610.º) mais requisito específico: má fé bilateral - 'o devedor e o terceiro' (Art. 612.º/1). Má fé = consciência de que o acto oneroso causa prejuízo ao credor (Art. 612.º/2). Não é necessária intenção de prejudicar o credor mas não basta o conhecimento da insolvência. No caso, como tanto B como C sabiam que a venda prejudicaria A, há má fé bilateral. Portanto, A pode impugnar a venda."
+            },
+            {
+                question: "A é credor de B e receia que B aliene o seu único bem (um apartamento) antes de A conseguir executá-lo. Que providência cautelar pode A requerer? Que efeitos tem essa providência? A pode ser obrigado a prestar caução?",
+                guidingTopics: "Arresto (Arts. 619.º a 622.º CC e 391.º a 396.º CPC). Providência cautelar especificada que confere ao requerente uma posição privilegiada. Efeitos: (1) são ineficazes em relação ao requerente os actos de disposição dos bens arrestados (Art. 622.º); (2) o arresto pode ser convertido em penhora (Art. 762.º CPC). Pode ser exigida a prestação de caução ao requerente (Art. 621.º CC). Trata-se de um meio conservatório comum que permite ao credor prevenir a diminuição do património do devedor antes de obter título executivo."
+            },
+            {
+                question: "A afiançou a dívida de B perante o credor C no valor de €100.000. B não pagou e C quer cobrar directamente de A. A alega que C tem que primeiro executar todos os bens de B antes de lhe exigir o pagamento. Tem razão? Como se chama este direito de A? E se A tivesse renunciado a este direito no contrato de fiança?",
+                guidingTopics: "Fiança (Arts. 627.º a 655.º). A fiança é normalmente subsidiária, ou seja, o fiador tem o benefício da excussão prévia (Art. 638.º). Só depois de terem sido esgotados os bens do devedor é que ele responde. Portanto, A tem razão. Se o fiador renuncia ao benefício da excussão prévia então o regime é da solidariedade - C poderia cobrar directamente de A sem ter que executar primeiro os bens de B. A fiança é acessória (Art. 651.º) - o seu destino está acoplado ao da obrigação garantida. As dívidas têm que ser determinadas - a fiança omnibus é inválida (AUJ 4/2001)."
+            },
+            {
+                question: "A constituiu uma hipoteca sobre o seu apartamento para garantir um empréstimo de €200.000 do Banco X. Passados dois anos, A não pagou e o banco quer executar a hipoteca. No contrato de hipoteca está previsto que 'em caso de não pagamento, o apartamento fica automaticamente propriedade do banco'. Esta cláusula é válida? Porquê?",
+                guidingTopics: "Proibição do pacto comissório (Art. 694.º). Esta cláusula é NULA. O bem tem que ser adjudicado através de procedimento próprio, não pode haver apropriação automática pelo credor. O Art. 694.º aplica-se à hipoteca e também ao penhor (ex vi art. 678.º) e à consignação de rendimentos (ex vi art. 665.º). O objetivo é proteger o devedor de cláusulas leoninas estabelecidas em momentos de necessidade. A hipoteca incide sobre bens imóveis ou equiparados e é constituída através de registo (Art. 687.º)."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let userAnswers = [];
+        let quizFinished = false;
+
+        function initQuiz() {
+            userAnswers = new Array(questions.length);
+            document.getElementById('totalQuestions').textContent = `${questions.length} questões`;
+            generateQuestions();
+            showQuestion(0);
+            updateNavigation();
+            updateProgress();
+            document.getElementById('navigation').style.display = 'flex';
+        }
+
+        function generateQuestions() {
+            const container = document.getElementById('questionsContainer');
+            container.innerHTML = '';
+            questions.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question-container';
+                questionDiv.id = `question-${index}`;
+                questionDiv.innerHTML = `
+                    <div class="question-header">
+                        <div class="question-number">Questão ${index + 1}</div>
+                        <div class="question-progress">${index + 1} de ${questions.length}</div>
+                    </div>
+                    <div class="question-text">${q.question}</div>
+                    <div class="answer-section">
+                        <label class="answer-label" for="answer-${index}">Sua resposta:</label>
+                        <textarea 
+                            class="answer-textarea" 
+                            id="answer-${index}" 
+                            placeholder="Analise a situação e fundamente juridicamente..."
+                            oninput="saveAnswer(${index}, this.value)"
+                        ></textarea>
+                    </div>
+                    <div class="guiding-topics" id="topics-${index}">
+                        <h4>Elementos de Resposta:</h4>
+                        <p>${q.guidingTopics}</p>
+                    </div>
+                `;
+                container.appendChild(questionDiv);
+            });
+        }
+
+        function showQuestion(questionIndex) {
+            document.querySelectorAll('.question-container').forEach(q => q.classList.remove('active'));
+            const currentQuestionDiv = document.getElementById(`question-${questionIndex}`);
+            if (currentQuestionDiv) {
+                currentQuestionDiv.classList.add('active');
+            }
+            currentQuestion = questionIndex;
+            updateNavigation();
+            updateProgress();
+            document.getElementById('questionInfo').textContent = `Questão ${questionIndex + 1} de ${questions.length}`;
+            if (userAnswers[questionIndex] !== undefined) {
+                const textarea = document.getElementById(`answer-${questionIndex}`);
+                if (textarea) textarea.value = userAnswers[questionIndex];
+            }
+            const topicsDiv = document.getElementById(`topics-${questionIndex}`);
+            const showTopicsBtn = document.getElementById('showTopicsBtn');
+            if (topicsDiv.classList.contains('show')) {
+                showTopicsBtn.textContent = 'Ocultar Elementos de Resposta';
+            } else {
+                showTopicsBtn.textContent = 'Mostrar Elementos de Resposta';
+            }
+            const prevBtn = document.getElementById('prevBtn');
+            if (questionIndex === 0) prevBtn.style.display = 'none';
+            else prevBtn.style.display = 'block';
+        }
+
+        function saveAnswer(questionIndex, answer) {
+            userAnswers[questionIndex] = answer;
+            updateProgress();
+            updateNavigation();
+        }
+
+        function toggleTopics() {
+            const topicsDiv = document.getElementById(`topics-${currentQuestion}`);
+            const showTopicsBtn = document.getElementById('showTopicsBtn');
+            if (topicsDiv.classList.contains('show')) {
+                topicsDiv.classList.remove('show');
+                showTopicsBtn.textContent = 'Mostrar Elementos de Resposta';
+            } else {
+                topicsDiv.classList.add('show');
+                showTopicsBtn.textContent = 'Ocultar Elementos de Resposta';
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                showQuestion(currentQuestion + 1);
+            } else if (allQuestionsAnswered()) {
+                finishQuiz();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) showQuestion(currentQuestion - 1);
+        }
+
+        function allQuestionsAnswered() {
+            return userAnswers.length === questions.length && 
+                   userAnswers.every(answer => answer !== undefined && answer.trim() !== '');
+        }
+
+        function updateNavigation() {
+            const nextBtn = document.getElementById('nextBtn');
+            if (currentQuestion === questions.length - 1) {
+                if (allQuestionsAnswered()) {
+                    nextBtn.textContent = 'Finalizar Quiz';
+                    nextBtn.disabled = false;
+                } else {
+                    nextBtn.textContent = 'Responder Todas';
+                    nextBtn.disabled = true;
+                }
+            } else {
+                nextBtn.textContent = 'Próxima →';
+                nextBtn.disabled = false;
+            }
+        }
+
+        function updateProgress() {
+            const answeredQuestions = userAnswers.filter(answer => 
+                answer !== undefined && answer.trim() !== ''
+            ).length;
+            const progressPercent = (answeredQuestions / questions.length) * 100;
+            document.getElementById('progressBar').style.width = progressPercent + '%';
+        }
+
+        function finishQuiz() {
+            quizFinished = true;
+            document.querySelectorAll('.question-container').forEach(q => q.classList.remove('active'));
+            const resultsDiv = document.getElementById('results');
+            document.getElementById('navigation').style.display = 'none';
+            resultsDiv.classList.add('show');
+            resultsDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            userAnswers = new Array(questions.length);
+            quizFinished = false;
+            questions.forEach((_, index) => {
+                const textarea = document.getElementById(`answer-${index}`);
+                if (textarea) textarea.value = '';
+                const topicsDiv = document.getElementById(`topics-${index}`);
+                if (topicsDiv) topicsDiv.classList.remove('show');
+            });
+            document.getElementById('results').classList.remove('show');
+            document.getElementById('navigation').style.display = 'flex';
+            showQuestion(0);
+            updateProgress();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => { initQuiz(); }, 100);
+        });
+
+        window.addEventListener('load', function() {
+            if (!document.querySelector('.question-container.active')) initQuiz();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (quizFinished) return;
+            switch(e.key) {
+                case 'ArrowRight':
+                    if (!document.activeElement.classList.contains('answer-textarea')) {
+                        e.preventDefault();
+                        nextQuestion();
+                    }
+                    break;
+                case 'ArrowLeft':
+                    if (!document.activeElement.classList.contains('answer-textarea')) {
+                        e.preventDefault();
+                        previousQuestion();
+                    }
+                    break;
+            }
+        });
+
+        setInterval(() => {
+            const currentTextarea = document.getElementById(`answer-${currentQuestion}`);
+            if (currentTextarea && document.activeElement === currentTextarea) {
+                saveAnswer(currentQuestion, currentTextarea.value);
+            }
+        }, 2000);
+    </script>
+    <footer style="text-align: center; padding: 40px 20px 20px; color: #fff; opacity: 0.8; margin-top: 40px;">
+        <p>Desenvolvido por Nuno Sousa e Silva: <a href="https://www.nss.pt" target="_blank" style="color: #fff; text-decoration: underline;">www.nss.pt</a></p>
+    </footer>
+</body>
+</html>
